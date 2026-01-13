@@ -10,6 +10,7 @@ target_sources(TAlib
   PRIVATE
     src/main.c
     src/fluxhandler.c
+    src/escape-sequences.h
 
   PUBLIC
     FILE_SET HEADERS

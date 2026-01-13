@@ -16,3 +16,7 @@ Build project (same as 'make' when using Makefiles):
 '''bash
 cmake --build build
 '''
+
+TODO: 
+[ ] Make debug prints somewhere else than main drawing area
+
