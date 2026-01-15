@@ -1,5 +1,3 @@
-
-// #include "terminal-anim.h"
 #include "platform.h"
 #include "terminal-anim.h"
 #include <signal.h>
@@ -11,6 +9,7 @@
 // variables for this file
 static int has_init = 0;
 static struct termios termios_conf_init;
+volatile sig_atomic_t running = 1;
 
 void restore_terminal() {
   int rc = 0;
@@ -25,9 +24,10 @@ void restore_terminal() {
   printf("Out of RESTORE TERMINAL (RC=%d)\n", rc);
 }
 
-static void signal_handler(int sig) {
-  restore_terminal();
-  exit(0);
+// TODO: Ctrl+C broken
+static void handler_sigs_end(int sig) {
+  (void)sig; // unused
+  running = 0;
 }
 
 int setup_terminal() {
@@ -43,8 +43,12 @@ int setup_terminal() {
 
   if (rc == 0) {
     atexit(restore_terminal);
-    signal(SIGINT, signal_handler);
-    signal(SIGTERM, signal_handler);
+    struct sigaction sa_int;
+    sa_int.sa_handler = handler_sigs_end;
+    sa_int.sa_flags = 0;
+    sigemptyset(&sa_int.sa_mask);
+    sigaction(SIGTERM, &sa_int, NULL);
+    sigaction(SIGINT, &sa_int, NULL);
   }
 
   if (rc == 0) {
@@ -61,6 +65,8 @@ int setup_terminal() {
     // wait for enter input (byte by byte instead)
     // Disable C-V (paste)
     termios_conf_new.c_lflag &= ~(ECHO | ICANON | IEXTEN);
+
+    termios_conf_new.c_lflag |= ISIG;
   }
 
   if (rc == 0) {
@@ -75,15 +81,36 @@ int setup_terminal() {
   return rc;
 }
 
+void resize_screen_callback(int new_width, int new_height) {
+  // reset_screen();
+  printf("New Width: %d, New Height: %d\n", new_width, new_height);
+}
+
+// TODO: Instability, new line sometime reset to 0th col sometime not
 int main(int argc, char *argv[]) {
-  setup_terminal();
-  reset_screen();
+  int rc = setup_terminal();
+  if (rc != 0) {
+    printf("Setup failed with rc=%d\n", rc);
+    exit(1);
+  }
+  // reset_screen();
   printf("Hello world from MAIN\n");
 
   int width;
   int height;
   pf_get_size(&width, &height);
   printf("Width: %d, Height: %d\n", width, height);
+
+  int maxloopcounter = 0;
+  pf_register_size_change_cb((pf_size_change_cb)&resize_screen_callback);
+  while (running) {
+    pf_poll_events();
+    printf("> running = %d\n", running);
+    sleep(1);
+    maxloopcounter++;
+    if (maxloopcounter > 10)
+      running = 0;
+  }
 
   restore_terminal();
   return 0;
