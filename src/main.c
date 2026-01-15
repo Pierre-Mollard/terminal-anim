@@ -1,5 +1,6 @@
 
 // #include "terminal-anim.h"
+#include "platform.h"
 #include "terminal-anim.h"
 #include <signal.h>
 #include <stdio.h>
@@ -78,6 +79,11 @@ int main(int argc, char *argv[]) {
   setup_terminal();
   reset_screen();
   printf("Hello world from MAIN\n");
+
+  int width;
+  int height;
+  pf_get_size(&width, &height);
+  printf("Width: %d, Height: %d\n", width, height);
 
   restore_terminal();
   return 0;
