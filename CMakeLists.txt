@@ -13,6 +13,7 @@ target_sources(TAlib
     src/escape-sequences.h
     src/platform.h
     src/platform_unix.c
+    src/drawer.c
 
   PUBLIC
     FILE_SET HEADERS

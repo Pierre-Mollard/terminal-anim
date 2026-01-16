@@ -86,6 +86,8 @@ void resize_screen_callback(int new_width, int new_height) {
   reset_screen();
   term_color(255, 0, 0);
   printf("New Width: %d, New Height: %d\n", new_width, new_height);
+  term_color(0, 255, 0);
+  draw_square(10, 20, 5, 5);
   term_color(255, 255, 255);
 }
 
