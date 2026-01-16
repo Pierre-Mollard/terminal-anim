@@ -8,31 +8,35 @@ void draw_square(int x, int y, int width, int height) {
   int screen_width, screen_height;
   pf_get_size(&screen_width, &screen_height);
 
-  int square_x = 0;
-  if (x >= 0 && x < screen_width)
-    square_x = x;
-  int square_y = 0;
-  if (y >= 0 && y < screen_height)
-    square_y = y;
+  if (x >= screen_width || y >= screen_height)
+    return;
+  int start_x = (x < 0) ? 0 : x;
+  int start_y = (y < 0) ? 0 : y;
 
-  int square_w = 0;
-  if (width > 0 && width <= (screen_width - x))
-    square_w = width;
-  if (width > (screen_width - x))
-    square_w = width - x;
+  int end_x = x + width;
+  int end_y = y + height;
 
-  int square_h = 0;
-  if (height > 0 && height <= (screen_height - y))
-    square_h = height;
-  if (height > (screen_height - y))
-    square_h = height - y;
+  if (end_x > screen_width)
+    end_x = screen_width;
+  if (end_y > screen_height)
+    end_y = screen_height;
 
-  int counter_x = 0;
-  int counter_y = 0;
-  for (counter_x = square_x; counter_x <= square_x + square_w; counter_x++) {
-    for (counter_y = square_y; counter_y <= square_y + square_h; counter_y++) {
-      term_move(counter_y, counter_x);
-      term_write("#");
-    }
+  int draw_w = end_x - start_x;
+  int draw_h = end_y - start_y;
+
+  if (draw_w <= 0 || draw_h <= 0)
+    return;
+
+  char buffer_row[4096];
+  if (draw_w > sizeof(buffer_row))
+    draw_w = sizeof(buffer_row) - 1;
+
+  memset(buffer_row, '#', draw_w);
+  buffer_row[draw_w + 1] = '\0';
+
+  // ANSI is 1-based so +1
+  for (int r = 0; r <= draw_h; r++) {
+    term_move(start_y + r + 1, start_x + 1);
+    term_write(buffer_row);
   }
 }
