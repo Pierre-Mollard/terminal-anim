@@ -1,3 +1,4 @@
+#include "escape-sequences.h"
 #include "platform.h"
 #include "terminal-anim.h"
 #include <signal.h>
@@ -83,7 +84,9 @@ int setup_terminal() {
 
 void resize_screen_callback(int new_width, int new_height) {
   reset_screen();
+  term_color(255, 0, 0);
   printf("New Width: %d, New Height: %d\n", new_width, new_height);
+  term_color(255, 255, 255);
 }
 
 int main(int argc, char *argv[]) {
