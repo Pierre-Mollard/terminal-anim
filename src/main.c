@@ -24,7 +24,6 @@ void restore_terminal() {
   printf("Out of RESTORE TERMINAL (RC=%d)\n", rc);
 }
 
-// TODO: Ctrl+C broken
 static void handler_sigs_end(int sig) {
   (void)sig; // unused
   running = 0;
@@ -42,21 +41,12 @@ int setup_terminal() {
   }
 
   if (rc == 0) {
-    atexit(restore_terminal);
-    struct sigaction sa_int;
-    sa_int.sa_handler = handler_sigs_end;
-    sa_int.sa_flags = 0;
-    sigemptyset(&sa_int.sa_mask);
-    sigaction(SIGTERM, &sa_int, NULL);
-    sigaction(SIGINT, &sa_int, NULL);
-  }
-
-  if (rc == 0) {
     rc = tcgetattr(STDIN_FILENO, &termios_conf_init);
   }
-  rc = tcgetattr(STDIN_FILENO, &termios_conf_init);
 
   if (rc == 0) {
+    // copy existing
+    termios_conf_new = termios_conf_init;
 
     // diable flow control with C-S/C-Q
     termios_conf_new.c_iflag &= ~ICRNL;
@@ -74,6 +64,16 @@ int setup_terminal() {
   }
 
   if (rc == 0) {
+    atexit(restore_terminal);
+    struct sigaction sa_int;
+    sa_int.sa_handler = handler_sigs_end;
+    sa_int.sa_flags = 0;
+    sigemptyset(&sa_int.sa_mask);
+    sigaction(SIGTERM, &sa_int, NULL);
+    sigaction(SIGINT, &sa_int, NULL);
+  }
+
+  if (rc == 0) {
     has_init = 1;
   }
 
@@ -82,18 +82,17 @@ int setup_terminal() {
 }
 
 void resize_screen_callback(int new_width, int new_height) {
-  // reset_screen();
+  reset_screen();
   printf("New Width: %d, New Height: %d\n", new_width, new_height);
 }
 
-// TODO: Instability, new line sometime reset to 0th col sometime not
 int main(int argc, char *argv[]) {
   int rc = setup_terminal();
   if (rc != 0) {
     printf("Setup failed with rc=%d\n", rc);
     exit(1);
   }
-  // reset_screen();
+  reset_screen();
   printf("Hello world from MAIN\n");
 
   int width;
@@ -105,8 +104,7 @@ int main(int argc, char *argv[]) {
   pf_register_size_change_cb((pf_size_change_cb)&resize_screen_callback);
   while (running) {
     pf_poll_events();
-    printf("> running = %d\n", running);
-    sleep(1);
+    sleep(1); // interrupted by SIGWINCH handler
     maxloopcounter++;
     if (maxloopcounter > 10)
       running = 0;
