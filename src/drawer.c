@@ -6,7 +6,7 @@
 void draw_square(int x, int y, int width, int height) {
 
   int screen_width, screen_height;
-  pf_get_size(&screen_width, &screen_height);
+  pf_get_size(&screen_height, &screen_width);
 
   if (x >= screen_width || y >= screen_height)
     return;
@@ -32,10 +32,10 @@ void draw_square(int x, int y, int width, int height) {
     draw_w = sizeof(buffer_row) - 1;
 
   memset(buffer_row, '#', draw_w);
-  buffer_row[draw_w + 1] = '\0';
+  buffer_row[draw_w] = '\0';
 
   // ANSI is 1-based so +1
-  for (int r = 0; r <= draw_h; r++) {
+  for (int r = 0; r < draw_h; r++) {
     term_move(start_y + r + 1, start_x + 1);
     term_write(buffer_row);
   }

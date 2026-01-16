@@ -82,12 +82,14 @@ int setup_terminal() {
   return rc;
 }
 
-void resize_screen_callback(int new_width, int new_height) {
+void resize_screen_callback(int new_rows, int new_cols) {
   reset_screen();
   term_color(255, 0, 0);
-  printf("New Width: %d, New Height: %d\n", new_width, new_height);
+  printf("New ROWS: %d, New COLS: %d\n", new_rows, new_cols);
   term_color(0, 255, 0);
   draw_square(10, 20, 5, 5);
+  term_color(0, 0, 255);
+  draw_square(20, 30, 50, 7);
   term_color(255, 255, 255);
 }
 
@@ -100,10 +102,10 @@ int main(int argc, char *argv[]) {
   reset_screen();
   printf("Hello world from MAIN\n");
 
-  int width;
-  int height;
-  pf_get_size(&width, &height);
-  printf("Width: %d, Height: %d\n", width, height);
+  int rows;
+  int cols;
+  pf_get_size(&rows, &cols);
+  printf("ROWS: %d, COLS: %d\n", rows, cols);
 
   int maxloopcounter = 0;
   pf_register_size_change_cb((pf_size_change_cb)&resize_screen_callback);
