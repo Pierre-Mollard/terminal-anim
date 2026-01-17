@@ -3,7 +3,7 @@
 #include <termio.h>
 #include <unistd.h>
 
-void pf_get_size(int *rows, int *cols) {
+void pf_get_size(unsigned int *rows, unsigned int *cols) {
   struct winsize ws;
   if (ioctl(STDIN_FILENO, TIOCGWINSZ, &ws) == 0) {
     *rows = ws.ws_row;
@@ -37,7 +37,7 @@ void pf_poll_events() {
   if (resize_pending) {
     resize_pending = 0;
     if (resize_callback) {
-      int r, c;
+      unsigned int r, c;
       pf_get_size(&r, &c);
       resize_callback(r, c);
     }

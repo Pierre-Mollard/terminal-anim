@@ -5,6 +5,6 @@
 
 void reset_screen();
 
-void draw_square(int x, int y, int width, int height);
+void draw_square(int x, int y, unsigned int width, unsigned int height);
 
 #endif

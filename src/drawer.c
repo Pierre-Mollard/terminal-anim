@@ -3,9 +3,9 @@
 
 #include "platform.h"
 
-void draw_square(int x, int y, int width, int height) {
+void draw_square(int x, int y, unsigned int width, unsigned int height) {
 
-  int screen_width, screen_height;
+  unsigned int screen_width, screen_height;
   pf_get_size(&screen_height, &screen_width);
 
   if (x >= screen_width || y >= screen_height)
