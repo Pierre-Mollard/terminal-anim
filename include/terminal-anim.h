@@ -3,7 +3,7 @@
 
 #define RC_SUCCESS 0
 
-void draw_square(char *buffer, int x, int y, unsigned int width,
+void draw_square(char **buffer_cursor, int x, int y, unsigned int width,
                  unsigned int height);
 
 #endif

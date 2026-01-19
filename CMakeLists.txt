@@ -13,6 +13,8 @@ target_sources(TAlib
     src/platform.h
     src/platform_unix.c
     src/drawer.c
+    src/scene.c
+    src/scene.h
 
   PUBLIC
     FILE_SET HEADERS

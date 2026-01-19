@@ -1,5 +1,6 @@
 #include "escape-sequences.h"
 #include "platform.h"
+#include "scene.h"
 #include "terminal-anim.h"
 #include <errno.h>
 #include <poll.h>
@@ -124,32 +125,36 @@ void handle_user_input(char c) {
 
 void draw_screen() {
   char screen_buffer[MAX_BUFFER_WIDTH];
+  char *cursor = screen_buffer;
   memset(screen_buffer, '\0', sizeof(screen_buffer));
 
-  term_write(screen_buffer, CLEAR_SCREEN);
-  term_color(screen_buffer, 255, 0, 0);
-  term_color(screen_buffer, 0, 255, 0);
-  draw_square(screen_buffer, 10, 20, 5, 5);
-  term_color(screen_buffer, 0, 0, 255);
-  draw_square(screen_buffer, 20, 30, 50, 7);
-  term_color(screen_buffer, 120, 120, 120);
-  draw_square(screen_buffer, user_x, user_y, 5, 5);
+  term_move(&cursor, 1, 1);
 
-  term_color(screen_buffer, 255, 255, 255);
-  term_move(screen_buffer, 0, 0);
-  term_write_f(screen_buffer, "ROWS: %d, COLS: %d", screen_max_rows,
-               screen_max_cols);
+  term_write(&cursor, CLEAR_SCREEN);
+  term_color(&cursor, 255, 0, 0);
+  term_color(&cursor, 0, 255, 0);
+  draw_square(&cursor, 10, 20, 5, 5);
+  term_color(&cursor, 0, 0, 255);
+  draw_square(&cursor, 20, 30, 50, 7);
+  term_color(&cursor, 120, 120, 120);
+  draw_square(&cursor, user_x, user_y, 5, 5);
 
-  term_move(screen_buffer, 0, 50);
-  term_write_f(screen_buffer, "READ: %c", input_display);
+  term_color(&cursor, 255, 255, 255);
+  term_move(&cursor, 0, 0);
+  term_write_f(&cursor, "ROWS: %d, COLS: %d", screen_max_rows, screen_max_cols);
 
-  term_move(screen_buffer, 0, 70);
-  term_write(screen_buffer, "CTRL-C to quit");
+  term_move(&cursor, 0, 50);
+  term_write_f(&cursor, "READ: %c", input_display);
 
-  term_move(screen_buffer, 2, 0);
-  term_write(screen_buffer, "hjkl to move");
-  term_move(screen_buffer, 2, 80);
-  term_write(screen_buffer, "maj SHIFT move further");
+  term_move(&cursor, 0, 70);
+  term_write(&cursor, "CTRL-C to quit");
+
+  term_move(&cursor, 2, 0);
+  term_write(&cursor, "hjkl to move");
+  term_move(&cursor, 2, 80);
+  term_write(&cursor, "maj SHIFT move further");
+
+  scene_update(&cursor, 4, 4, screen_max_cols - 2, screen_max_rows - 2);
 
   term_write_output(screen_buffer);
 }
@@ -170,6 +175,8 @@ int main(int argc, char *argv[]) {
   poll_fd[0].fd = STDIN_FILENO;
   poll_fd[0].events = POLLIN;
   poll_fd[0].revents = 0;
+
+  scene_init();
 
   while (running) {
     pf_poll_events();
@@ -194,10 +201,11 @@ int main(int argc, char *argv[]) {
   }
 
   char screen_buffer[MAX_BUFFER_WIDTH];
-  term_write(screen_buffer, ALTERNATIVE_BUFFER_OFF);
-  term_write(screen_buffer, SHOW_CURSOR);
-  term_move(screen_buffer, 0, 0);
-  term_write(screen_buffer, CLEAR_SCREEN);
+  char *cursor = screen_buffer;
+  term_write(&cursor, ALTERNATIVE_BUFFER_OFF);
+  term_write(&cursor, SHOW_CURSOR);
+  term_move(&cursor, 0, 0);
+  term_write(&cursor, CLEAR_SCREEN);
   term_write_output(screen_buffer);
   restore_terminal();
   return 0;

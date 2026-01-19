@@ -7,7 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#define MAX_BUFFER_WIDTH 4096
+#define MAX_BUFFER_WIDTH 100000
 
 // The 'escape' of espace sequence, 04/08 octal since /e is not standard
 #define ESC "\033"
@@ -31,34 +31,40 @@ static inline void term_write_output(const char *seq) {
   write(STDOUT_FILENO, seq, strlen(seq));
 }
 
-static inline void term_write(char *buffer, const char *seq) {
-  strcat(buffer, seq);
+// TODO: this is optimized for direct writing, but need function to handle
+// screen buffer to use inside the scene (\n faster than trem_pos)
+// with: char screen_grid[MAX_ROWS][MAX_COLS];
+static inline void term_write_char(char **buffer_cursor, const char seq) {
+  **buffer_cursor = seq;
+  (*buffer_cursor)++;
+  **buffer_cursor = '\0';
 }
 
-static inline void term_write_f(char *buffer, const char *format, ...) {
-  char formatted[MAX_BUFFER_WIDTH];
+static inline void term_write(char **buffer_cursor, const char *seq) {
+  size_t len = strlen(seq);
+  memcpy(*buffer_cursor, seq, len);
+  *buffer_cursor += len;
+  **buffer_cursor = '\0';
+}
+
+static inline void term_write_f(char **buffer_cursor, const char *format, ...) {
 
   va_list args;
   va_start(args, format);
 
-  int len = vsnprintf(formatted, sizeof(formatted), format, args);
+  int len = vsprintf(*buffer_cursor, format, args);
 
   va_end(args);
 
-  if (len > 0) {
-    if ((size_t)len >= sizeof(formatted)) {
-      len = sizeof(formatted) - 1;
-    }
-    term_write(buffer, formatted);
-  }
+  *buffer_cursor += len;
 }
 
-static inline void term_move(char *buffer, int row, int col) {
-  term_write_f(buffer, CURSOR_TO_F, row, col);
+static inline void term_move(char **buffer_cursor, int row, int col) {
+  term_write_f(buffer_cursor, CURSOR_TO_F, row, col);
 }
 
-static inline void term_color(char *buffer, int r, int g, int b) {
-  term_write_f(buffer, COLOR_F, r, g, b);
+static inline void term_color(char **buffer_cursor, int r, int g, int b) {
+  term_write_f(buffer_cursor, COLOR_F, r, g, b);
 }
 
 #endif
