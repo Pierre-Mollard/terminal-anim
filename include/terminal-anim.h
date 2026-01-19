@@ -3,8 +3,7 @@
 
 #define RC_SUCCESS 0
 
-void reset_screen();
-
-void draw_square(int x, int y, unsigned int width, unsigned int height);
+void draw_square(char *buffer, int x, int y, unsigned int width,
+                 unsigned int height);
 
 #endif

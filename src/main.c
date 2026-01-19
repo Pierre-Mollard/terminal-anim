@@ -109,34 +109,59 @@ void handle_user_input(char c) {
     user_x++;
   if (c == 'h' && user_x > 0)
     user_x--;
+
+  if (c == 'J' && user_y < screen_max_rows - 4)
+    user_y += 5;
+  if (c == 'K' && user_y > 4)
+    user_y -= 5;
+  if (c == 'L' && user_x < screen_max_cols - 4)
+    user_x += 5;
+  if (c == 'H' && user_x > 4)
+    user_x -= 5;
+
   input_display = c;
 }
 
 void draw_screen() {
-  reset_screen();
-  term_color(255, 0, 0);
-  term_color(0, 255, 0);
-  draw_square(10, 20, 5, 5);
-  term_color(0, 0, 255);
-  draw_square(20, 30, 50, 7);
-  term_color(120, 120, 120);
-  draw_square(user_x, user_y, 5, 5);
+  char screen_buffer[MAX_BUFFER_WIDTH];
+  memset(screen_buffer, '\0', sizeof(screen_buffer));
 
-  term_color(255, 255, 255);
-  term_move(0, 0);
-  term_write_f("ROWS: %d, COLS: %d", screen_max_rows, screen_max_cols);
+  term_write(screen_buffer, CLEAR_SCREEN);
+  term_color(screen_buffer, 255, 0, 0);
+  term_color(screen_buffer, 0, 255, 0);
+  draw_square(screen_buffer, 10, 20, 5, 5);
+  term_color(screen_buffer, 0, 0, 255);
+  draw_square(screen_buffer, 20, 30, 50, 7);
+  term_color(screen_buffer, 120, 120, 120);
+  draw_square(screen_buffer, user_x, user_y, 5, 5);
 
-  term_move(0, 50);
-  term_write_f("READ: %c", input_display);
+  term_color(screen_buffer, 255, 255, 255);
+  term_move(screen_buffer, 0, 0);
+  term_write_f(screen_buffer, "ROWS: %d, COLS: %d", screen_max_rows,
+               screen_max_cols);
+
+  term_move(screen_buffer, 0, 50);
+  term_write_f(screen_buffer, "READ: %c", input_display);
+
+  term_move(screen_buffer, 0, 70);
+  term_write(screen_buffer, "CTRL-C to quit");
+
+  term_move(screen_buffer, 2, 0);
+  term_write(screen_buffer, "hjkl to move");
+  term_move(screen_buffer, 2, 80);
+  term_write(screen_buffer, "maj SHIFT move further");
+
+  term_write_output(screen_buffer);
 }
 
 int main(int argc, char *argv[]) {
   int rc = setup_terminal();
   if (rc != 0) {
-    term_write_f("Setup failed with rc=%d\n", rc);
+    printf("Setup failed with rc=%d\n", rc);
     exit(1);
   }
-  term_write(HIDE_CURSOR);
+  term_write_output(HIDE_CURSOR);
+  term_write_output(ALTERNATIVE_BUFFER_ON);
 
   pf_get_size(&screen_max_rows, &screen_max_cols);
   pf_register_size_change_cb((pf_size_change_cb)&resize_screen_callback);
@@ -168,8 +193,12 @@ int main(int argc, char *argv[]) {
     draw_screen();
   }
 
-  term_write(SHOW_CURSOR);
-  term_move(0, 0);
+  char screen_buffer[MAX_BUFFER_WIDTH];
+  term_write(screen_buffer, ALTERNATIVE_BUFFER_OFF);
+  term_write(screen_buffer, SHOW_CURSOR);
+  term_move(screen_buffer, 0, 0);
+  term_write(screen_buffer, CLEAR_SCREEN);
+  term_write_output(screen_buffer);
   restore_terminal();
   return 0;
 }

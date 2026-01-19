@@ -3,7 +3,8 @@
 
 #include "platform.h"
 
-void draw_square(int x, int y, unsigned int width, unsigned int height) {
+void draw_square(char *buffer, int x, int y, unsigned int width,
+                 unsigned int height) {
 
   unsigned int screen_width, screen_height;
   pf_get_size(&screen_height, &screen_width);
@@ -36,7 +37,7 @@ void draw_square(int x, int y, unsigned int width, unsigned int height) {
 
   // ANSI is 1-based so +1
   for (int r = 0; r < draw_h; r++) {
-    term_move(start_y + r + 1, start_x + 1);
-    term_write(buffer_row);
+    term_move(buffer, start_y + r + 1, start_x + 1);
+    term_write(buffer, buffer_row);
   }
 }
