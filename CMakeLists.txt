@@ -6,6 +6,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_library(TAlib)
 target_compile_options(TAlib PRIVATE -Wall)
+target_link_libraries(TAlib PRIVATE m)
 target_sources(TAlib
   PRIVATE
     src/main.c

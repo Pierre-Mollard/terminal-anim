@@ -154,7 +154,7 @@ void draw_screen() {
   term_move(&cursor, 2, 80);
   term_write(&cursor, "maj SHIFT move further");
 
-  scene_update(&cursor, 4, 4, screen_max_cols - 2, screen_max_rows - 2);
+  scene_update(&cursor, 0, 0, screen_max_cols / 3, screen_max_rows / 3);
 
   term_write_output(screen_buffer);
 }
