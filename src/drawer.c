@@ -7,6 +7,14 @@ void clear_screen(char **buffer_cursor) {
   term_write(buffer_cursor, CLEAR_ALL "\0");
 }
 
+void hide_cursor(char **buffer_cursor, int state) {
+  if (state == 1) {
+    term_write(buffer_cursor, HIDE_CURSOR "\0");
+  } else {
+    term_write(buffer_cursor, SHOW_CURSOR "\0");
+  }
+}
+
 void draw_square(char **buffer_cursor, int x, int y, unsigned int width,
                  unsigned int height) {
 

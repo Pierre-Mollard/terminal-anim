@@ -12,6 +12,8 @@ void restore_terminal();
 
 void clear_screen(char **buffer_cursor);
 
+void hide_cursor(char **buffer_cursor, int state);
+
 extern volatile sig_atomic_t g_is_running;
 
 #endif

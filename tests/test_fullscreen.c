@@ -47,28 +47,34 @@ int main(int argc, char *argv[]) {
   memset(screen_buffer, '\0', sizeof(screen_buffer));
 
   clear_screen(&cursor);
+  hide_cursor(&cursor, 1);
   printf("%s", screen_buffer);
 
   struct timespec ts;
   ts.tv_nsec = 20000000; // 20ms
 
-  // TODO: see why the template version lags already (not even using custom lib)
   if (user_input == '1') {
+    // TODO: hide cursor not working
+    // TODO: not using internal second buffer (or maybe ok because lib is for
+    // that)
     for (int i = 0; i < 1000; i++) {
       char used_char = '#';
       if (i % 2 == 0) {
         used_char = '@';
       }
-      clear_screen(&cursor);
-      printf("%s", screen_buffer);
       memset(screen_buffer, '\0', sizeof(screen_buffer));
       fill_buffer(screen_buffer, max_rows, max_cols, used_char);
-      printf("%s", screen_buffer);
+      write(STDOUT_FILENO, screen_buffer, (max_cols + 1) * max_rows);
+      // NOTE: probably wont work with some escpapes sequences making it bigger
       while (nanosleep(&ts, &ts) == -1 && errno == EINTR) {
         // retry with remaining time
       }
     }
+  } else {
+    // TODO: implement with custom libe
   }
 
+  hide_cursor(&cursor, 0);
+  printf("%s", screen_buffer);
   return 0;
 }
