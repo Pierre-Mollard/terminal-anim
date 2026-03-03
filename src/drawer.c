@@ -3,6 +3,10 @@
 
 #include "platform.h"
 
+void clear_screen(char **buffer_cursor) {
+  term_write(buffer_cursor, CLEAR_ALL "\0");
+}
+
 void draw_square(char **buffer_cursor, int x, int y, unsigned int width,
                  unsigned int height) {
 

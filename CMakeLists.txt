@@ -34,3 +34,7 @@ target_link_libraries(TerminalExec PRIVATE TAlib)
 add_executable(TestStatic)
 target_sources(TestStatic PRIVATE tests/test_static.c)
 target_link_libraries(TestStatic PRIVATE TAlib)
+
+add_executable(TestFullscreen)
+target_sources(TestFullscreen PRIVATE tests/test_fullscreen.c)
+target_link_libraries(TestFullscreen PRIVATE TAlib)

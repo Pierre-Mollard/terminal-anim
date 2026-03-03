@@ -10,6 +10,8 @@ int setup_terminal();
 
 void restore_terminal();
 
+void clear_screen(char **buffer_cursor);
+
 extern volatile sig_atomic_t g_is_running;
 
 #endif
