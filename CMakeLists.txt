@@ -16,6 +16,7 @@ target_sources(TAlib
     src/drawer.c
     src/scene.c
     src/scene.h
+    src/terminal-handler.c
 
   PUBLIC
     FILE_SET HEADERS
