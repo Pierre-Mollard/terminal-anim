@@ -14,6 +14,8 @@ void clear_screen(char **buffer_cursor);
 
 void hide_cursor(char **buffer_cursor, int state);
 
+void activate_second_buffer(char **buffer_cursor, int state);
+
 extern volatile sig_atomic_t g_is_running;
 
 #endif

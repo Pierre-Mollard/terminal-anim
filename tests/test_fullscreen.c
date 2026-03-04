@@ -51,12 +51,14 @@ int main(int argc, char *argv[]) {
   hide_cursor(&cursor, 1);
   printf("%s", screen_buffer);
   fflush(stdout);
+  activate_second_buffer(&cursor, 1);
+  printf("%s", screen_buffer);
+  fflush(stdout);
 
   struct timespec ts;
   ts.tv_nsec = 20000000; // 20ms
 
   if (user_input == '1') {
-    // TODO: hide cursor not working
     // TODO: not using internal second buffer (or maybe ok because lib is for
     // that)
     for (int i = 0; i < 1000; i++) {
@@ -78,6 +80,9 @@ int main(int argc, char *argv[]) {
 
   memset(screen_buffer, '\0', sizeof(screen_buffer));
   hide_cursor(&cursor, 0);
+  printf("%s", screen_buffer);
+  fflush(stdout);
+  activate_second_buffer(&cursor, 0);
   printf("%s", screen_buffer);
   fflush(stdout);
   return 0;

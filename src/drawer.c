@@ -15,6 +15,14 @@ void hide_cursor(char **buffer_cursor, int state) {
   }
 }
 
+void activate_second_buffer(char **buffer_cursor, int state) {
+  if (state == 1) {
+    term_write(buffer_cursor, ALTERNATIVE_BUFFER_ON "\0");
+  } else {
+    term_write(buffer_cursor, ALTERNATIVE_BUFFER_OFF "\0");
+  }
+}
+
 void draw_square(char **buffer_cursor, int x, int y, unsigned int width,
                  unsigned int height) {
 
