@@ -47,8 +47,10 @@ int main(int argc, char *argv[]) {
   memset(screen_buffer, '\0', sizeof(screen_buffer));
 
   clear_screen(&cursor);
+  printf("%s", screen_buffer);
   hide_cursor(&cursor, 1);
   printf("%s", screen_buffer);
+  fflush(stdout);
 
   struct timespec ts;
   ts.tv_nsec = 20000000; // 20ms
@@ -64,7 +66,7 @@ int main(int argc, char *argv[]) {
       }
       memset(screen_buffer, '\0', sizeof(screen_buffer));
       fill_buffer(screen_buffer, max_rows, max_cols, used_char);
-      write(STDOUT_FILENO, screen_buffer, (max_cols + 1) * max_rows);
+      write(STDOUT_FILENO, screen_buffer, (max_cols + 1) * max_rows * 2);
       // NOTE: probably wont work with some escpapes sequences making it bigger
       while (nanosleep(&ts, &ts) == -1 && errno == EINTR) {
         // retry with remaining time
@@ -74,7 +76,9 @@ int main(int argc, char *argv[]) {
     // TODO: implement with custom libe
   }
 
+  memset(screen_buffer, '\0', sizeof(screen_buffer));
   hide_cursor(&cursor, 0);
   printf("%s", screen_buffer);
+  fflush(stdout);
   return 0;
 }
