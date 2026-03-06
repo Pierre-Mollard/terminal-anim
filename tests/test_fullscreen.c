@@ -11,6 +11,8 @@
 static unsigned int max_rows = 0;
 static unsigned int max_cols = 0;
 
+static int g_no_lib_running = 0;
+
 void local_get_size(unsigned int *rows, unsigned int *cols) {
   struct winsize ws;
   if (ioctl(STDIN_FILENO, TIOCGWINSZ, &ws) == 0) {
@@ -28,6 +30,11 @@ void fill_buffer(char *buffer, int nbrows, int nbcols, char content) {
     buffer[y * (nbcols + 1) + nbcols] = '\n';
   }
   buffer[nbrows * (nbcols + 1)] = '\0';
+}
+
+static void no_lib_teardown(int sig) {
+  (void)sig; // unused
+  g_no_lib_running = 0;
 }
 
 int main(int argc, char *argv[]) {
@@ -52,6 +59,7 @@ int main(int argc, char *argv[]) {
   if (user_input == '1') {
 
     // NOTE: No lib INIT
+    cursor = screen_buffer;
     clear_screen(&cursor);
     printf("%s", screen_buffer);
     hide_cursor(&cursor, 1);
@@ -60,23 +68,35 @@ int main(int argc, char *argv[]) {
     activate_second_buffer(&cursor, 1);
     printf("%s", screen_buffer);
     fflush(stdout);
+    // setup teardown
+    g_no_lib_running = 1;
+    struct sigaction sa_int = {0};
+    sa_int.sa_handler = no_lib_teardown;
+    sa_int.sa_flags = 0;
+    sigemptyset(&sa_int.sa_mask);
+    sigaction(SIGTERM, &sa_int, NULL);
+    sigaction(SIGINT, &sa_int, NULL);
 
     // REFRESH
-    for (int i = 0; i < 1000; i++) {
-      char used_char = '#';
-      if (i % 2 == 0) {
+    char used_char = '#';
+    int counter = 0;
+    while (g_no_lib_running) {
+      counter++;
+      used_char = '#';
+      if (counter % 2 == 0) {
         used_char = '@';
       }
       memset(screen_buffer, '\0', sizeof(screen_buffer));
       fill_buffer(screen_buffer, max_rows, max_cols, used_char);
       write(STDOUT_FILENO, screen_buffer, (max_cols + 1) * max_rows * 2);
-      // NOTE: probably wont work with some escpapes sequences making it bigger
+      // TODO: probably wont work with some escpapes sequences making it bigger
       while (nanosleep(&ts, &ts) == -1 && errno == EINTR) {
         // retry with remaining time
       }
     }
 
     // TEARDOWN
+    cursor = screen_buffer;
     memset(screen_buffer, '\0', sizeof(screen_buffer));
     hide_cursor(&cursor, 0);
     printf("%s", screen_buffer);
@@ -84,7 +104,9 @@ int main(int argc, char *argv[]) {
     activate_second_buffer(&cursor, 0);
     printf("%s", screen_buffer);
     fflush(stdout);
+
   } else {
+
     // NOTE: Lib INIT
     int rc = setup_terminal();
     if (rc != 0) {
@@ -92,15 +114,18 @@ int main(int argc, char *argv[]) {
     }
 
     // TODO: Lib refresh
-    for (int i = 0; i < 1000; i++) {
-      char used_char = '#';
-      if (i % 2 == 0) {
+    char used_char = '#';
+    int counter = 0;
+    while (g_is_running) {
+      counter++;
+      used_char = '#';
+      if (counter % 2 == 0) {
         used_char = '@';
       }
       memset(screen_buffer, '\0', sizeof(screen_buffer));
       fill_buffer(screen_buffer, max_rows, max_cols, used_char);
       write(STDOUT_FILENO, screen_buffer, (max_cols + 1) * max_rows * 2);
-      // NOTE: probably wont work with some escpapes sequences making it bigger
+      // TODO: probably wont work with some escpapes sequences making it bigger
       while (nanosleep(&ts, &ts) == -1 && errno == EINTR) {
         // retry with remaining time
       }
