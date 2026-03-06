@@ -11,7 +11,7 @@
 static unsigned int max_rows = 0;
 static unsigned int max_cols = 0;
 
-void pf_get_size(unsigned int *rows, unsigned int *cols) {
+void local_get_size(unsigned int *rows, unsigned int *cols) {
   struct winsize ws;
   if (ioctl(STDIN_FILENO, TIOCGWINSZ, &ws) == 0) {
     *rows = ws.ws_row;
@@ -31,7 +31,7 @@ void fill_buffer(char *buffer, int nbrows, int nbcols, char content) {
 }
 
 int main(int argc, char *argv[]) {
-  pf_get_size(&max_rows, &max_cols);
+  local_get_size(&max_rows, &max_cols);
   printf("FULLSCREEN TEST ROWS:%d/COLS:%d\n", max_rows, max_cols);
   printf("Show template mode (1) or test lib (2) ?\n");
   printf("Type then enter...\n");
@@ -46,21 +46,22 @@ int main(int argc, char *argv[]) {
   char *cursor = screen_buffer;
   memset(screen_buffer, '\0', sizeof(screen_buffer));
 
-  clear_screen(&cursor);
-  printf("%s", screen_buffer);
-  hide_cursor(&cursor, 1);
-  printf("%s", screen_buffer);
-  fflush(stdout);
-  activate_second_buffer(&cursor, 1);
-  printf("%s", screen_buffer);
-  fflush(stdout);
-
   struct timespec ts;
   ts.tv_nsec = 20000000; // 20ms
 
   if (user_input == '1') {
-    // TODO: not using internal second buffer (or maybe ok because lib is for
-    // that)
+
+    // NOTE: No lib INIT
+    clear_screen(&cursor);
+    printf("%s", screen_buffer);
+    hide_cursor(&cursor, 1);
+    printf("%s", screen_buffer);
+    fflush(stdout);
+    activate_second_buffer(&cursor, 1);
+    printf("%s", screen_buffer);
+    fflush(stdout);
+
+    // REFRESH
     for (int i = 0; i < 1000; i++) {
       char used_char = '#';
       if (i % 2 == 0) {
@@ -74,16 +75,40 @@ int main(int argc, char *argv[]) {
         // retry with remaining time
       }
     }
+
+    // TEARDOWN
+    memset(screen_buffer, '\0', sizeof(screen_buffer));
+    hide_cursor(&cursor, 0);
+    printf("%s", screen_buffer);
+    fflush(stdout);
+    activate_second_buffer(&cursor, 0);
+    printf("%s", screen_buffer);
+    fflush(stdout);
   } else {
-    // TODO: implement with custom libe
+    // NOTE: Lib INIT
+    int rc = setup_terminal();
+    if (rc != 0) {
+      printf("Setup failed with rc=%d\n", rc);
+    }
+
+    // TODO: Lib refresh
+    for (int i = 0; i < 1000; i++) {
+      char used_char = '#';
+      if (i % 2 == 0) {
+        used_char = '@';
+      }
+      memset(screen_buffer, '\0', sizeof(screen_buffer));
+      fill_buffer(screen_buffer, max_rows, max_cols, used_char);
+      write(STDOUT_FILENO, screen_buffer, (max_cols + 1) * max_rows * 2);
+      // NOTE: probably wont work with some escpapes sequences making it bigger
+      while (nanosleep(&ts, &ts) == -1 && errno == EINTR) {
+        // retry with remaining time
+      }
+    }
+
+    // TEARDOWN
+    restore_terminal();
   }
 
-  memset(screen_buffer, '\0', sizeof(screen_buffer));
-  hide_cursor(&cursor, 0);
-  printf("%s", screen_buffer);
-  fflush(stdout);
-  activate_second_buffer(&cursor, 0);
-  printf("%s", screen_buffer);
-  fflush(stdout);
   return 0;
 }

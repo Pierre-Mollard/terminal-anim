@@ -81,8 +81,6 @@ int main(int argc, char *argv[]) {
     printf("Setup failed with rc=%d\n", rc);
     exit(1);
   }
-  term_write_output(HIDE_CURSOR);
-  term_write_output(ALTERNATIVE_BUFFER_ON);
 
   pf_get_size(&screen_max_rows, &screen_max_cols);
 
@@ -115,13 +113,6 @@ int main(int argc, char *argv[]) {
     draw_screen();
   }
 
-  char screen_buffer[MAX_BUFFER_WIDTH];
-  char *cursor = screen_buffer;
-  term_write(&cursor, ALTERNATIVE_BUFFER_OFF);
-  term_write(&cursor, SHOW_CURSOR);
-  term_move(&cursor, 0, 0);
-  term_write(&cursor, CLEAR_SCREEN);
-  term_write_output(screen_buffer);
   restore_terminal();
   return 0;
 }

@@ -1,8 +1,8 @@
+#include "escape-sequences.h"
 #include "platform.h"
 #include "terminal-anim.h"
 #include <poll.h>
 #include <signal.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <sys/poll.h>
 #include <termios.h>
@@ -21,14 +21,16 @@ void resize_screen_callback(int new_rows, int new_cols) {
 void restore_terminal() {
   int rc = 0;
 
+  term_write_output(SHOW_CURSOR);
+  term_write_output(ALTERNATIVE_BUFFER_OFF);
+  term_write_output(CLEAR_ALL);
+
   if (!has_init)
     rc = 1;
 
   if (rc == 0) {
     rc = tcsetattr(STDIN_FILENO, TCSAFLUSH, &termios_conf_init);
   }
-
-  printf("Out of RESTORE TERMINAL (RC=%d)\n", rc);
 }
 
 static void handler_sigs_end(int sig) {
@@ -88,6 +90,8 @@ int setup_terminal() {
 
   g_is_running = has_init;
 
-  printf("Out of SETUP TERMINAL (RC=%d)", rc);
+  term_write_output(HIDE_CURSOR);
+  term_write_output(ALTERNATIVE_BUFFER_ON);
+  term_write_output(CLEAR_ALL);
   return rc;
 }
