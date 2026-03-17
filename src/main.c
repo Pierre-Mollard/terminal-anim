@@ -76,9 +76,9 @@ void draw_screen() {
 }
 
 int main(int argc, char *argv[]) {
-  int rc = setup_terminal();
-  if (rc != 0) {
-    printf("Setup failed with rc=%d\n", rc);
+  tau_ctx *ctx = tau_create();
+  if (ctx == NULL) {
+    printf("Setup failed with to create ctx\n");
     exit(1);
   }
 
@@ -91,7 +91,7 @@ int main(int argc, char *argv[]) {
 
   scene_init();
 
-  while (g_is_running) {
+  while (tau_g_is_running) {
     pf_poll_events();
 
     int ret_poll = poll(poll_fd, 1, 20); // ms
@@ -113,6 +113,6 @@ int main(int argc, char *argv[]) {
     draw_screen();
   }
 
-  restore_terminal();
+  tau_destroy(ctx);
   return 0;
 }

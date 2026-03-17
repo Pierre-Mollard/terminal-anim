@@ -8,17 +8,24 @@
 #include <termios.h>
 #include <unistd.h>
 
-volatile sig_atomic_t g_is_running;
+struct tau_ctx {
+  int id;
+};
+
+volatile sig_atomic_t tau_g_is_running;
 static int has_init = 0;
 static struct termios termios_conf_init;
 static unsigned int screen_max_rows, screen_max_cols = 0;
+
+tau_ctx *g_ctx_destroy_fallback = NULL;
+tau_ctx g_one_ctx_for_now = {1};
 
 void resize_screen_callback(int new_rows, int new_cols) {
   screen_max_rows = new_rows;
   screen_max_cols = new_cols;
 }
 
-void restore_terminal() {
+void tau_destroy(tau_ctx *ctx) {
   int rc = 0;
 
   term_write_output(SHOW_CURSOR);
@@ -33,20 +40,30 @@ void restore_terminal() {
   }
 }
 
-static void handler_sigs_end(int sig) {
-  (void)sig; // unused
-  g_is_running = 0;
+void generic_destroy() {
+  if (g_ctx_destroy_fallback != NULL) {
+    tau_destroy(g_ctx_destroy_fallback);
+  }
 }
 
-int setup_terminal() {
+static void handler_sigs_end(int sig) {
+  (void)sig; // unused
+  tau_g_is_running = 0;
+}
+
+tau_ctx *tau_create() {
+  tau_ctx *ctx = &g_one_ctx_for_now;
   struct termios termios_conf_new;
   int rc = 0;
+
+  g_ctx_destroy_fallback = ctx;
 
   if (has_init)
     rc = 1;
 
   if (!isatty(STDIN_FILENO)) {
     rc = 2;
+    ctx = NULL;
   }
 
   if (rc == 0) {
@@ -73,7 +90,7 @@ int setup_terminal() {
   }
 
   if (rc == 0) {
-    atexit(restore_terminal);
+    atexit(generic_destroy);
     struct sigaction sa_int;
     sa_int.sa_handler = handler_sigs_end;
     sa_int.sa_flags = 0;
@@ -84,14 +101,16 @@ int setup_terminal() {
 
   if (rc == 0) {
     has_init = 1;
+  } else {
+    ctx = NULL;
   }
 
   pf_register_size_change_cb((pf_size_change_cb)&resize_screen_callback);
 
-  g_is_running = has_init;
+  tau_g_is_running = has_init;
 
   term_write_output(HIDE_CURSOR);
   term_write_output(ALTERNATIVE_BUFFER_ON);
   term_write_output(CLEAR_ALL);
-  return rc;
+  return ctx;
 }

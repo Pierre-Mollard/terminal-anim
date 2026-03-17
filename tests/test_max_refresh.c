@@ -108,15 +108,16 @@ int main(int argc, char *argv[]) {
   } else {
 
     // NOTE: Lib INIT
-    int rc = setup_terminal();
-    if (rc != 0) {
-      printf("Setup failed with rc=%d\n", rc);
+    tau_ctx *ctx;
+    ctx = tau_create();
+    if (ctx == NULL) {
+      printf("Setup failed with ctx NULL\n");
     }
 
     // TODO: Lib refresh
     char used_char = '#';
     int counter = 0;
-    while (g_is_running) {
+    while (tau_g_is_running) {
       counter++;
       used_char = '#';
       if (counter % 2 == 0) {
@@ -132,7 +133,7 @@ int main(int argc, char *argv[]) {
     }
 
     // TEARDOWN
-    restore_terminal();
+    tau_destroy(ctx);
   }
 
   return 0;
