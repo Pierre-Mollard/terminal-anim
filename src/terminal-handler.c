@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/poll.h>
 #include <termios.h>
 #include <unistd.h>
@@ -40,35 +41,35 @@ static tau_ctx *g_active_ctx = NULL; // only one at a time
 volatile sig_atomic_t tau_g_is_running;
 static unsigned int screen_max_rows, screen_max_cols = 0;
 
-tau_ctx *g_ctx_destroy_fallback = NULL;
-
 void resize_screen_callback(int new_rows, int new_cols) {
   screen_max_rows = new_rows;
   screen_max_cols = new_cols;
 }
 
 void tau_destroy(tau_ctx *ctx) {
+  if (!ctx)
+    return;
+
   term_write_output(SHOW_CURSOR);
   term_write_output(ALTERNATIVE_BUFFER_OFF);
   term_write_output(CLEAR_ALL);
 
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &ctx->termios_conf_init);
 
+  if (g_active_ctx == ctx) {
+    g_active_ctx = NULL;
+  }
+  g_tau_ctx_nb_open--;
+
   free(ctx->back_buffer);
   free(ctx->front_buffer);
   free(ctx->output_buffer);
   free(ctx);
-
-  g_tau_ctx_nb_open--;
-
-  if (g_active_ctx == ctx) {
-    g_active_ctx = NULL;
-  }
 }
 
 void generic_destroy() {
-  if (g_ctx_destroy_fallback != NULL) {
-    tau_destroy(g_ctx_destroy_fallback);
+  if (g_active_ctx != NULL) {
+    tau_destroy(g_active_ctx);
   }
 }
 
@@ -80,10 +81,12 @@ static void handler_sigs_end(int sig) {
 tau_ctx *tau_create() {
 
   if (g_active_ctx != NULL) {
+    perror("already active");
     return NULL;
   }
 
   if (!isatty(STDIN_FILENO)) {
+    perror("tty error");
     return NULL;
   }
 
@@ -107,22 +110,22 @@ tau_ctx *tau_create() {
   ctx->front_buffer = calloc(ctx->nb_cells, sizeof(*ctx->front_buffer));
 
   // output_buffer is BYTES_PER_PIXEL bytes per cell
-  ctx->output_capacity =
-      ctx->nb_cells * sizeof(*ctx->output_buffer) * BYTES_PER_PIXEL;
-  ctx->output_buffer = calloc(ctx->output_capacity, ctx->output_capacity);
+  ctx->output_capacity = ctx->nb_cells * BYTES_PER_PIXEL;
+  ctx->output_buffer =
+      calloc(ctx->output_capacity, sizeof(*ctx->output_buffer));
 
   if (!ctx->back_buffer || !ctx->front_buffer || !ctx->output_buffer) {
+    printf("capacity: %zu\n", ctx->output_capacity);
     free(ctx->back_buffer);
     free(ctx->front_buffer);
     free(ctx->output_buffer);
     free(ctx);
+    perror("calloc error");
     return NULL;
   }
 
   struct termios termios_conf_old = {0};
   struct termios termios_conf_new = {0};
-
-  g_ctx_destroy_fallback = ctx;
 
   tcgetattr(STDIN_FILENO, &termios_conf_old);
   ctx->termios_conf_init = termios_conf_old;
@@ -165,16 +168,33 @@ tau_ctx *tau_create() {
   return ctx;
 }
 
+static inline void write_in_buffer(char **buffer_cursor, const char *seq) {
+  size_t len = strlen(seq);
+  memcpy(*buffer_cursor, seq, len);
+  *buffer_cursor += len;
+  **buffer_cursor = '\0';
+}
+
+void tau_fill(tau_ctx *ctx, uint32_t symbol) {
+  for (size_t i = 0; i < ctx->nb_cells; i++) {
+    ctx->back_buffer[i].symbol = symbol;
+  }
+}
+
 void tau_draw(tau_ctx *ctx) {
-  if (!ctx || !ctx->front_buffer || !ctx->output_buffer)
+  if (!ctx || !ctx->back_buffer || !ctx->output_buffer)
     return;
 
   char *cursor = ctx->output_buffer;
 
+  // HOME cursor and clear
+  write_in_buffer(&cursor, CURSOR_HOME);
+
+  // COPY back buffer to output
   for (size_t y = 0; y < ctx->nb_rows; y++) {
     for (size_t x = 0; x < ctx->nb_cols; x++) {
       size_t i = y * ctx->nb_cols + x;
-      char c = (char)ctx->front_buffer[i].symbol;
+      char c = (char)ctx->back_buffer[i].symbol;
       if (c == '\0')
         c = ' ';
       *cursor++ = c;
@@ -186,6 +206,71 @@ void tau_draw(tau_ctx *ctx) {
     }
   }
 
+  // DRAWS once ouput
   size_t len = (size_t)(cursor - ctx->output_buffer);
   write(STDOUT_FILENO, ctx->output_buffer, len);
+
+  // UPDATES front buffer to be what is on screen
+  memcpy(ctx->front_buffer, ctx->back_buffer,
+         ctx->nb_cells * sizeof(*ctx->front_buffer));
+}
+
+int compare_cells(struct tau_cell a, struct tau_cell b) {
+  return a.symbol != b.symbol || a.attrs != b.attrs || a.bg_r != b.bg_r ||
+         a.bg_g != b.bg_g || a.bg_b != b.bg_b || a.fg_r != b.fg_r ||
+         a.fg_g != b.fg_g || a.fg_b != b.fg_b;
+}
+
+// draws the difference between back buffer (what is new from the user)
+// and front buffer (believed to be on screen)
+// NOTE: current algo redraws in-between first and last diff in each row
+void tau_present(tau_ctx *ctx) {
+  if (!ctx || !ctx->front_buffer || !ctx->back_buffer || !ctx->output_buffer)
+    return;
+
+  char *cursor = ctx->output_buffer;
+
+  for (size_t row = 0; row < ctx->nb_rows; row++) {
+    int diff_in_line = 0;
+    int first_index = 0;
+    int last_index = 0;
+    int first_diff_x = 0;
+
+    for (size_t col = 0; col < ctx->nb_cols; col++) {
+      size_t i = row * ctx->nb_cols + col;
+
+      if (compare_cells(ctx->back_buffer[i], ctx->front_buffer[i])) {
+        // first diff in line, get the x value
+        if (!diff_in_line) {
+          diff_in_line = 1;
+          first_diff_x = col;
+          first_index = i;
+        }
+        // last diff in line is always the latest
+        last_index = i;
+      }
+    }
+
+    if (diff_in_line) {
+      term_move(&cursor, row + 1, first_diff_x + 1);
+
+      for (size_t i = first_index; i <= last_index; i++) {
+        char c = (char)ctx->back_buffer[i].symbol;
+        if (c == '\0')
+          c = ' ';
+        *cursor++ = c;
+      }
+
+      // UPDATES front buffer to be what is on screen (with only the part that
+      // changed)
+      memcpy(&ctx->front_buffer[first_index], &ctx->back_buffer[first_index],
+             (last_index - first_index - 1) * sizeof(*ctx->back_buffer));
+    }
+  }
+
+  // DRAWS differences found
+  size_t len = (size_t)(cursor - ctx->output_buffer);
+  if (len > 0) {
+    write(STDOUT_FILENO, ctx->output_buffer, len);
+  }
 }

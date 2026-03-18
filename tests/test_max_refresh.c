@@ -49,14 +49,13 @@ int main(int argc, char *argv[]) {
     fscanf(stdin, "%c", &user_input);
   }
 
-  char screen_buffer[MAX_BUFFER_WIDTH];
-  char *cursor = screen_buffer;
-  memset(screen_buffer, '\0', sizeof(screen_buffer));
-
   struct timespec ts;
   ts.tv_nsec = 20000000; // 20ms
 
   if (user_input == '1') {
+    char screen_buffer[MAX_BUFFER_WIDTH];
+    char *cursor = screen_buffer;
+    memset(screen_buffer, '\0', sizeof(screen_buffer));
 
     // NOTE: No lib INIT
     cursor = screen_buffer;
@@ -89,7 +88,7 @@ int main(int argc, char *argv[]) {
       memset(screen_buffer, '\0', sizeof(screen_buffer));
       fill_buffer(screen_buffer, max_rows, max_cols, used_char);
       write(STDOUT_FILENO, screen_buffer, (max_cols + 1) * max_rows * 2);
-      // TODO: probably wont work with some escpapes sequences making it bigger
+      // NOTE: wont work with some escpapes sequences making it bigger
       while (nanosleep(&ts, &ts) == -1 && errno == EINTR) {
         // retry with remaining time
       }
@@ -108,25 +107,26 @@ int main(int argc, char *argv[]) {
   } else {
 
     // NOTE: Lib INIT
-    tau_ctx *ctx;
-    ctx = tau_create();
+    tau_ctx *ctx = tau_create();
     if (ctx == NULL) {
       printf("Setup failed with ctx NULL\n");
     }
 
     // TODO: Lib refresh
-    char used_char = '#';
+    char used_char = 'I';
     int counter = 0;
+
+    tau_fill(ctx, used_char);
+    tau_draw(ctx);
+
     while (tau_g_is_running) {
       counter++;
       used_char = '#';
       if (counter % 2 == 0) {
         used_char = '@';
       }
-      memset(screen_buffer, '\0', sizeof(screen_buffer));
-      fill_buffer(screen_buffer, max_rows, max_cols, used_char);
-      write(STDOUT_FILENO, screen_buffer, (max_cols + 1) * max_rows * 2);
-      // TODO: probably wont work with some escpapes sequences making it bigger
+      tau_fill(ctx, used_char);
+      tau_present(ctx);
       while (nanosleep(&ts, &ts) == -1 && errno == EINTR) {
         // retry with remaining time
       }
