@@ -28,9 +28,9 @@ void tau_destroy(tau_ctx *ctx) {
   if (!ctx)
     return;
 
-  term_write_output(SHOW_CURSOR);
-  term_write_output(ALTERNATIVE_BUFFER_OFF);
-  term_write_output(CLEAR_ALL);
+  write_in_term(SHOW_CURSOR);
+  write_in_term(ALTERNATIVE_BUFFER_OFF);
+  write_in_term(CLEAR_ALL);
 
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &ctx->termios_conf_init);
 
@@ -140,22 +140,18 @@ tau_ctx *tau_create() {
 
   tau_g_is_running = 1;
 
-  term_write_output(HIDE_CURSOR);
-  term_write_output(ALTERNATIVE_BUFFER_ON);
-  term_write_output(CLEAR_ALL);
+  write_in_term(HIDE_CURSOR);
+  write_in_term(ALTERNATIVE_BUFFER_ON);
+  write_in_term(CLEAR_ALL);
   return ctx;
-}
-
-static inline void write_in_buffer(char **buffer_cursor, const char *seq) {
-  size_t len = strlen(seq);
-  memcpy(*buffer_cursor, seq, len);
-  *buffer_cursor += len;
-  **buffer_cursor = '\0';
 }
 
 void tau_fill(tau_ctx *ctx, uint32_t symbol) {
   for (size_t i = 0; i < ctx->nb_cells; i++) {
     ctx->back_buffer[i].symbol = symbol;
+    ctx->back_buffer[i].fg_r = 255;
+    ctx->back_buffer[i].fg_g = 255;
+    ctx->back_buffer[i].fg_b = 255;
   }
 }
 
@@ -230,10 +226,12 @@ void tau_present(tau_ctx *ctx) {
     }
 
     if (diff_in_line) {
-      term_move(&cursor, row + 1, first_diff_x + 1);
+      write_in_buffer_move(&cursor, row + 1, first_diff_x + 1);
 
       for (size_t i = first_index; i <= last_index; i++) {
-        char c = (char)ctx->back_buffer[i].symbol;
+        struct tau_cell cell = ctx->back_buffer[i];
+        char c = (char)cell.symbol;
+        write_in_buffer_color(&cursor, cell.fg_r, cell.fg_g, cell.fg_b);
         if (c == '\0')
           c = ' ';
         *cursor++ = c;

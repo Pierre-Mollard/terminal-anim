@@ -45,6 +45,9 @@ void tau_put_square(tau_ctx *ctx, int x, int y, unsigned int width,
     for (int j = start_y; j <= end_y; j++) {
       int coords = j * ctx->nb_cols + i;
       ctx->back_buffer[coords].symbol = 'H';
+      ctx->back_buffer[coords].fg_r = 255;
+      ctx->back_buffer[coords].fg_g = 0;
+      ctx->back_buffer[coords].fg_b = 0;
     }
   }
 }

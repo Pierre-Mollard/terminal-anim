@@ -48,7 +48,7 @@ void scene_update(char **win_buff, int pos_x, int pos_y, int cam_w, int cam_h) {
   double char_aspect = 0.5;
 
   for (int pixel_y = pos_x; pixel_y < cam_h; pixel_y++) {
-    term_move(win_buff, pixel_y + 1, 1);
+    write_in_buffer_move(win_buff, pixel_y + 1, 1);
 
     for (int pixel_x = pos_y; pixel_x < cam_w; pixel_x++) {
 
@@ -66,10 +66,10 @@ void scene_update(char **win_buff, int pos_x, int pos_y, int cam_w, int cam_h) {
           pixel = '+';
         if (dist > 5.5)
           pixel = '.';
-        term_write_char(win_buff, pixel);
+        write_in_buffer_char(win_buff, pixel);
       } else {
         // MISS (Background)
-        term_write_char(win_buff, ' ');
+        write_in_buffer_char(win_buff, ' ');
       }
     }
   }

@@ -43,36 +43,37 @@ void draw_screen() {
   char *cursor = screen_buffer;
   memset(screen_buffer, '\0', sizeof(screen_buffer));
 
-  term_move(&cursor, 1, 1);
+  write_in_buffer_move(&cursor, 1, 1);
 
-  term_write(&cursor, CLEAR_SCREEN);
-  term_color(&cursor, 255, 0, 0);
-  term_color(&cursor, 0, 255, 0);
+  write_in_buffer(&cursor, CLEAR_SCREEN);
+  write_in_buffer_color(&cursor, 255, 0, 0);
+  write_in_buffer_color(&cursor, 0, 255, 0);
   //  draw_square(&cursor, 10, 20, 5, 5);
-  term_color(&cursor, 0, 0, 255);
+  write_in_buffer_color(&cursor, 0, 0, 255);
   // draw_square(&cursor, 20, 30, 50, 7);
-  term_color(&cursor, 120, 120, 120);
+  write_in_buffer_color(&cursor, 120, 120, 120);
   // draw_square(&cursor, user_x, user_y, 5, 5);
 
-  term_color(&cursor, 255, 255, 255);
-  term_move(&cursor, 0, 0);
-  term_write_f(&cursor, "ROWS: %d, COLS: %d", screen_max_rows, screen_max_cols);
+  write_in_buffer_color(&cursor, 255, 255, 255);
+  write_in_buffer_move(&cursor, 0, 0);
+  write_in_buffer_f(&cursor, "ROWS: %d, COLS: %d", screen_max_rows,
+                    screen_max_cols);
 
-  term_move(&cursor, 0, 50);
-  term_write_f(&cursor, "READ: %c", input_display);
+  write_in_buffer_move(&cursor, 0, 50);
+  write_in_buffer_f(&cursor, "READ: %c", input_display);
 
-  term_move(&cursor, 0, 70);
-  term_write(&cursor, "CTRL-C to quit");
+  write_in_buffer_move(&cursor, 0, 70);
+  write_in_buffer(&cursor, "CTRL-C to quit");
 
-  term_move(&cursor, 2, 0);
-  term_write(&cursor, "hjkl to move");
-  term_move(&cursor, 2, 80);
-  term_write(&cursor, "maj SHIFT move further");
+  write_in_buffer_move(&cursor, 2, 0);
+  write_in_buffer(&cursor, "hjkl to move");
+  write_in_buffer_move(&cursor, 2, 80);
+  write_in_buffer(&cursor, "maj SHIFT move further");
 
   // disabled: scene_update(&cursor, 0, 0, screen_max_cols / 3, screen_max_rows
   // / 3);
 
-  term_write_output(screen_buffer);
+  write_in_term(screen_buffer);
 }
 
 int main(int argc, char *argv[]) {
