@@ -1,6 +1,7 @@
 #ifndef TERMINAL_ANIM_LIB_H_INTERNAL
 #define TERMINAL_ANIM_LIB_H_INTERNAL
 
+#include "terminal-anim.h"
 #include <stddef.h>
 #include <stdint.h>
 #include <termios.h>
@@ -9,9 +10,7 @@
 
 struct tau_cell {
   uint32_t symbol;
-  uint8_t fg_r, fg_g, fg_b;
-  uint8_t bg_r, bg_g, bg_b;
-  uint8_t attrs;
+  struct tau_style style;
 };
 
 struct tau_ctx {

@@ -6,18 +6,18 @@
 void tau_clear(tau_ctx *ctx) {
   for (size_t i = 0; i < ctx->nb_cells; i++) {
     ctx->back_buffer[i].symbol = ' ';
-    ctx->back_buffer[i].fg_r = 255;
-    ctx->back_buffer[i].fg_g = 255;
-    ctx->back_buffer[i].fg_b = 255;
-    ctx->back_buffer[i].bg_r = 0;
-    ctx->back_buffer[i].bg_g = 0;
-    ctx->back_buffer[i].bg_b = 0;
-    ctx->back_buffer[i].attrs = 0;
+    ctx->back_buffer[i].style.fg_r = 255;
+    ctx->back_buffer[i].style.fg_g = 255;
+    ctx->back_buffer[i].style.fg_b = 255;
+    ctx->back_buffer[i].style.bg_r = 0;
+    ctx->back_buffer[i].style.bg_g = 0;
+    ctx->back_buffer[i].style.bg_b = 0;
+    ctx->back_buffer[i].style.attrs = 0;
   }
 }
 
 void tau_put_square(tau_ctx *ctx, int x, int y, unsigned int width,
-                    unsigned int height) {
+                    unsigned int height, tau_style style) {
 
   unsigned int screen_width, screen_height;
   pf_get_size(&screen_height, &screen_width);
@@ -27,8 +27,8 @@ void tau_put_square(tau_ctx *ctx, int x, int y, unsigned int width,
   int start_x = (x < 0) ? 0 : x;
   int start_y = (y < 0) ? 0 : y;
 
-  int end_x = x + width;
-  int end_y = y + height;
+  int end_x = start_x + width;
+  int end_y = start_y + height;
 
   if (end_x > screen_width)
     end_x = screen_width;
@@ -45,9 +45,36 @@ void tau_put_square(tau_ctx *ctx, int x, int y, unsigned int width,
     for (int j = start_y; j <= end_y; j++) {
       int coords = j * ctx->nb_cols + i;
       ctx->back_buffer[coords].symbol = 'H';
-      ctx->back_buffer[coords].fg_r = 255;
-      ctx->back_buffer[coords].fg_g = 0;
-      ctx->back_buffer[coords].fg_b = 0;
+      ctx->back_buffer[coords].style.fg_r = 255;
+      ctx->back_buffer[coords].style.fg_g = 0;
+      ctx->back_buffer[coords].style.fg_b = 0;
     }
+  }
+}
+
+void tau_put_str(tau_ctx *ctx, char *str, size_t size, int x, int y,
+                 tau_style style) {
+  if (!ctx || !str)
+    return;
+
+  int screen_width = (int)ctx->nb_cols;
+  int screen_height = (int)ctx->nb_rows;
+
+  if (y < 0 || y >= screen_height)
+    return;
+
+  if (x >= screen_width)
+    return;
+
+  int start_x = (x < 0) ? 0 : x;
+  if (x < 0)
+    start_x = 0;
+
+  for (size_t i = 0; i < size; i++) {
+    if (start_x + (int)i >= screen_width)
+      break;
+    size_t pos = (ctx->nb_cols * (size_t)y) + (size_t)start_x + i;
+    ctx->back_buffer[pos].style = style;
+    ctx->back_buffer[pos].symbol = str[i];
   }
 }

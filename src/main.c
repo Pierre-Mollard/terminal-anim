@@ -38,7 +38,7 @@ void handle_user_input(char c) {
   input_display = c;
 }
 
-void draw_screen() {
+void draw_screen(tau_ctx *ctx) {
   char screen_buffer[MAX_BUFFER_WIDTH];
   char *cursor = screen_buffer;
   memset(screen_buffer, '\0', sizeof(screen_buffer));
@@ -111,7 +111,7 @@ int main(int argc, char *argv[]) {
       }
     }
 
-    draw_screen();
+    draw_screen(ctx);
   }
 
   tau_destroy(ctx);

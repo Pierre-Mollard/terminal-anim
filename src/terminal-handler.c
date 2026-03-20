@@ -146,12 +146,10 @@ tau_ctx *tau_create() {
   return ctx;
 }
 
-void tau_fill(tau_ctx *ctx, uint32_t symbol) {
+void tau_fill(tau_ctx *ctx, uint32_t symbol, tau_style style) {
   for (size_t i = 0; i < ctx->nb_cells; i++) {
     ctx->back_buffer[i].symbol = symbol;
-    ctx->back_buffer[i].fg_r = 255;
-    ctx->back_buffer[i].fg_g = 255;
-    ctx->back_buffer[i].fg_b = 255;
+    ctx->back_buffer[i].style = style;
   }
 }
 
@@ -189,10 +187,14 @@ void tau_draw(tau_ctx *ctx) {
          ctx->nb_cells * sizeof(*ctx->front_buffer));
 }
 
+int compare_styles(struct tau_style a, struct tau_style b) {
+  return a.attrs != b.attrs || a.bg_r != b.bg_r || a.bg_g != b.bg_g ||
+         a.bg_b != b.bg_b || a.fg_r != b.fg_r || a.fg_g != b.fg_g ||
+         a.fg_b != b.fg_b;
+}
+
 int compare_cells(struct tau_cell a, struct tau_cell b) {
-  return a.symbol != b.symbol || a.attrs != b.attrs || a.bg_r != b.bg_r ||
-         a.bg_g != b.bg_g || a.bg_b != b.bg_b || a.fg_r != b.fg_r ||
-         a.fg_g != b.fg_g || a.fg_b != b.fg_b;
+  return a.symbol != b.symbol || compare_styles(a.style, b.style);
 }
 
 // draws the difference between back buffer (what is new from the user)
@@ -231,7 +233,8 @@ void tau_present(tau_ctx *ctx) {
       for (size_t i = first_index; i <= last_index; i++) {
         struct tau_cell cell = ctx->back_buffer[i];
         char c = (char)cell.symbol;
-        write_in_buffer_color(&cursor, cell.fg_r, cell.fg_g, cell.fg_b);
+        write_in_buffer_color(&cursor, cell.style.fg_r, cell.style.fg_g,
+                              cell.style.fg_b);
         if (c == '\0')
           c = ' ';
         *cursor++ = c;

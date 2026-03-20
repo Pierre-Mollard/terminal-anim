@@ -1,6 +1,7 @@
 #include "terminal-anim.h"
 
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 
 int main(int argc, char *argv[]) {
@@ -12,10 +13,26 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  tau_fill(ctx, '_');
+  tau_style bg_style = {0};
+  bg_style.fg_b = 255;
+  bg_style.fg_g = 255;
+
+  tau_style fg_style = {0};
+  bg_style.fg_r = 255;
+
+  tau_style text_style = {0};
+  text_style.fg_r = 255;
+  text_style.fg_g = 255;
+  text_style.fg_g = 100;
+
+  tau_fill(ctx, '_', bg_style);
   tau_present(ctx);
   sleep(1);
-  tau_put_square(ctx, 10, 10, 10, 10);
+  tau_put_square(ctx, 10, 10, 10, 10, fg_style);
+  char *text = "this is a test";
+  tau_put_str(ctx, text, strlen(text), 4, 4, text_style);
+  tau_put_str(ctx, text, strlen(text), -2, 2, text_style);
+  tau_put_str(ctx, text, strlen(text), 180, 6, text_style);
   tau_present(ctx);
   sleep(1);
 
