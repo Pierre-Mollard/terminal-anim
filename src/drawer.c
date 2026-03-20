@@ -45,9 +45,7 @@ void tau_put_square(tau_ctx *ctx, int x, int y, unsigned int width,
     for (int j = start_y; j <= end_y; j++) {
       int coords = j * ctx->nb_cols + i;
       ctx->back_buffer[coords].symbol = 'H';
-      ctx->back_buffer[coords].style.fg_r = 255;
-      ctx->back_buffer[coords].style.fg_g = 0;
-      ctx->back_buffer[coords].style.fg_b = 0;
+      ctx->back_buffer[coords].style = style;
     }
   }
 }
@@ -72,6 +70,8 @@ void tau_put_str(tau_ctx *ctx, char *str, size_t size, int x, int y,
 
   for (size_t i = 0; i < size; i++) {
     if (start_x + (int)i >= screen_width)
+      break;
+    if (str[i] == '\0')
       break;
     size_t pos = (ctx->nb_cols * (size_t)y) + (size_t)start_x + i;
     ctx->back_buffer[pos].style = style;

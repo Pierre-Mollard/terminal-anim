@@ -6,6 +6,7 @@
 #include <poll.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/poll.h>
 #include <termios.h>
 #include <unistd.h>
@@ -39,41 +40,50 @@ void handle_user_input(char c) {
 }
 
 void draw_screen(tau_ctx *ctx) {
-  char screen_buffer[MAX_BUFFER_WIDTH];
-  char *cursor = screen_buffer;
-  memset(screen_buffer, '\0', sizeof(screen_buffer));
 
-  write_in_buffer_move(&cursor, 1, 1);
+  tau_style bg_style = {0};
+  bg_style.fg_r = 0;
+  bg_style.fg_g = 0;
+  bg_style.fg_b = 0;
+  tau_fill(ctx, ' ', bg_style);
 
-  write_in_buffer(&cursor, CLEAR_SCREEN);
-  write_in_buffer_color(&cursor, 255, 0, 0);
-  write_in_buffer_color(&cursor, 0, 255, 0);
-  //  draw_square(&cursor, 10, 20, 5, 5);
-  write_in_buffer_color(&cursor, 0, 0, 255);
-  // draw_square(&cursor, 20, 30, 50, 7);
-  write_in_buffer_color(&cursor, 120, 120, 120);
-  // draw_square(&cursor, user_x, user_y, 5, 5);
+  tau_style red = {0};
+  red.fg_r = 255;
+  tau_style green = {0};
+  green.fg_g = 255;
+  tau_style blue = {0};
+  blue.fg_b = 255;
+  tau_style gray = {0};
+  gray.fg_r = 120;
+  gray.fg_g = 120;
+  gray.fg_b = 120;
+  tau_style white = {0};
+  white.fg_r = 255;
+  white.fg_g = 255;
+  white.fg_b = 255;
+  tau_put_square(ctx, 10, 20, 5, 5, green);
+  tau_put_square(ctx, 20, 30, 50, 7, blue);
+  tau_put_square(ctx, user_x, user_y, 5, 5, gray);
 
-  write_in_buffer_color(&cursor, 255, 255, 255);
-  write_in_buffer_move(&cursor, 0, 0);
-  write_in_buffer_f(&cursor, "ROWS: %d, COLS: %d", screen_max_rows,
-                    screen_max_cols);
+  char buffer[256];
+  snprintf(buffer, 256, "ROWS: %d, COLS: %d", screen_max_rows, screen_max_cols);
+  tau_put_str(ctx, buffer, strlen(buffer), 0, 0, white);
 
-  write_in_buffer_move(&cursor, 0, 50);
-  write_in_buffer_f(&cursor, "READ: %c", input_display);
+  snprintf(buffer, 256, "READ: %c", input_display);
+  tau_put_str(ctx, buffer, strlen(buffer), 0, 2, white);
 
-  write_in_buffer_move(&cursor, 0, 70);
-  write_in_buffer(&cursor, "CTRL-C to quit");
+  snprintf(buffer, 256, "CTRL-C to quit");
+  tau_put_str(ctx, buffer, strlen(buffer), 0, 30, red);
 
-  write_in_buffer_move(&cursor, 2, 0);
-  write_in_buffer(&cursor, "hjkl to move");
-  write_in_buffer_move(&cursor, 2, 80);
-  write_in_buffer(&cursor, "maj SHIFT move further");
+  snprintf(buffer, 256, "hjkl to move");
+  tau_put_str(ctx, buffer, strlen(buffer), 2, 29, white);
+  snprintf(buffer, 256, "maj SHIFT move further");
+  tau_put_str(ctx, buffer, strlen(buffer), 50, 30, white);
 
   // disabled: scene_update(&cursor, 0, 0, screen_max_cols / 3, screen_max_rows
   // / 3);
 
-  write_in_term(screen_buffer);
+  tau_present(ctx);
 }
 
 int main(int argc, char *argv[]) {
