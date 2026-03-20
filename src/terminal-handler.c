@@ -1,5 +1,6 @@
 #include "escape-sequences.h"
 #include "platform.h"
+#include "terminal-anim-internal.h"
 #include "terminal-anim.h"
 #include <poll.h>
 #include <signal.h>
@@ -11,29 +12,6 @@
 #include <sys/poll.h>
 #include <termios.h>
 #include <unistd.h>
-
-#define BYTES_PER_PIXEL 32
-
-struct tau_cell {
-  uint32_t symbol;
-  uint8_t fg_r, fg_g, fg_b;
-  uint8_t bg_r, bg_g, bg_b;
-  uint8_t attrs;
-};
-
-struct tau_ctx {
-  int id;
-  struct tau_cell *front_buffer;
-  struct tau_cell *back_buffer;
-  size_t nb_cols;
-  size_t nb_rows;
-  size_t nb_cells;
-  size_t output_capacity;
-  char *output_buffer;
-  int cursor_x;
-  int cursor_y;
-  struct termios termios_conf_init;
-};
 
 volatile int g_tau_ctx_nb_open = 0;
 static tau_ctx *g_active_ctx = NULL; // only one at a time

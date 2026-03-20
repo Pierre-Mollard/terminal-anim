@@ -48,11 +48,11 @@ void draw_screen() {
   term_write(&cursor, CLEAR_SCREEN);
   term_color(&cursor, 255, 0, 0);
   term_color(&cursor, 0, 255, 0);
-  draw_square(&cursor, 10, 20, 5, 5);
+  //  draw_square(&cursor, 10, 20, 5, 5);
   term_color(&cursor, 0, 0, 255);
-  draw_square(&cursor, 20, 30, 50, 7);
+  // draw_square(&cursor, 20, 30, 50, 7);
   term_color(&cursor, 120, 120, 120);
-  draw_square(&cursor, user_x, user_y, 5, 5);
+  // draw_square(&cursor, user_x, user_y, 5, 5);
 
   term_color(&cursor, 255, 255, 255);
   term_move(&cursor, 0, 0);

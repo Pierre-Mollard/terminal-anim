@@ -14,11 +14,9 @@ void tau_destroy(tau_ctx *ctx);
 void tau_fill(tau_ctx *ctx, uint32_t symbol);
 void tau_draw(tau_ctx *ctx);
 void tau_present(tau_ctx *ctx);
-
-void draw_square(char **buffer_cursor, int x, int y, unsigned int width,
-                 unsigned int height);
-
-void clear_screen(char **buffer_cursor);
+void tau_clear(tau_ctx *ctx);
+void tau_put_square(tau_ctx *ctx, int x, int y, unsigned int width,
+                    unsigned int height);
 
 extern volatile sig_atomic_t tau_g_is_running;
 

@@ -17,6 +17,7 @@ target_sources(TAlib
     src/scene.c
     src/scene.h
     src/terminal-handler.c
+    src/terminal-anim-internal.h
 
   PUBLIC
     FILE_SET HEADERS
@@ -38,3 +39,7 @@ target_link_libraries(TestInitTeardown PRIVATE TAlib)
 add_executable(TestMaxRefresh)
 target_sources(TestMaxRefresh PRIVATE tests/test_max_refresh.c)
 target_link_libraries(TestMaxRefresh PRIVATE TAlib)
+
+add_executable(TestClearScreen)
+target_sources(TestClearScreen PRIVATE tests/test_clear.c)
+target_link_libraries(TestClearScreen PRIVATE TAlib)

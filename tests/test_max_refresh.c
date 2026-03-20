@@ -59,7 +59,6 @@ int main(int argc, char *argv[]) {
 
     // NOTE: No lib INIT
     cursor = screen_buffer;
-    clear_screen(&cursor);
     printf("%s", screen_buffer);
     printf("%s", screen_buffer);
     fflush(stdout);

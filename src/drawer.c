@@ -1,14 +1,23 @@
-#include "escape-sequences.h"
+#include "terminal-anim-internal.h"
 #include "terminal-anim.h"
 
 #include "platform.h"
 
-void clear_screen(char **buffer_cursor) {
-  term_write(buffer_cursor, CLEAR_ALL "\0");
+void tau_clear(tau_ctx *ctx) {
+  for (size_t i = 0; i < ctx->nb_cells; i++) {
+    ctx->back_buffer[i].symbol = ' ';
+    ctx->back_buffer[i].fg_r = 255;
+    ctx->back_buffer[i].fg_g = 255;
+    ctx->back_buffer[i].fg_b = 255;
+    ctx->back_buffer[i].bg_r = 0;
+    ctx->back_buffer[i].bg_g = 0;
+    ctx->back_buffer[i].bg_b = 0;
+    ctx->back_buffer[i].attrs = 0;
+  }
 }
 
-void draw_square(char **buffer_cursor, int x, int y, unsigned int width,
-                 unsigned int height) {
+void tau_put_square(tau_ctx *ctx, int x, int y, unsigned int width,
+                    unsigned int height) {
 
   unsigned int screen_width, screen_height;
   pf_get_size(&screen_height, &screen_width);
@@ -32,16 +41,10 @@ void draw_square(char **buffer_cursor, int x, int y, unsigned int width,
   if (draw_w <= 0 || draw_h <= 0)
     return;
 
-  char buffer_row[4096];
-  if (draw_w > sizeof(buffer_row))
-    draw_w = sizeof(buffer_row) - 1;
-
-  memset(buffer_row, '#', draw_w);
-  buffer_row[draw_w] = '\0';
-
-  // ANSI is 1-based so +1
-  for (int r = 0; r < draw_h; r++) {
-    term_move(buffer_cursor, start_y + r + 1, start_x + 1);
-    term_write(buffer_cursor, buffer_row);
+  for (int i = start_x; i <= end_x; i++) {
+    for (int j = start_y; j <= end_y; j++) {
+      int coords = j * ctx->nb_cols + i;
+      ctx->back_buffer[coords].symbol = 'H';
+    }
   }
 }
