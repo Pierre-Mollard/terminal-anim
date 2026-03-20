@@ -61,10 +61,8 @@ int main(int argc, char *argv[]) {
     cursor = screen_buffer;
     clear_screen(&cursor);
     printf("%s", screen_buffer);
-    hide_cursor(&cursor, 1);
     printf("%s", screen_buffer);
     fflush(stdout);
-    activate_second_buffer(&cursor, 1);
     printf("%s", screen_buffer);
     fflush(stdout);
     // setup teardown
@@ -97,10 +95,8 @@ int main(int argc, char *argv[]) {
     // TEARDOWN
     cursor = screen_buffer;
     memset(screen_buffer, '\0', sizeof(screen_buffer));
-    hide_cursor(&cursor, 0);
     printf("%s", screen_buffer);
     fflush(stdout);
-    activate_second_buffer(&cursor, 0);
     printf("%s", screen_buffer);
     fflush(stdout);
 

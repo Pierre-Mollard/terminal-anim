@@ -20,10 +20,6 @@ void draw_square(char **buffer_cursor, int x, int y, unsigned int width,
 
 void clear_screen(char **buffer_cursor);
 
-void hide_cursor(char **buffer_cursor, int state);
-
-void activate_second_buffer(char **buffer_cursor, int state);
-
 extern volatile sig_atomic_t tau_g_is_running;
 
 #endif
