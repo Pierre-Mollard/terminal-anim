@@ -4,6 +4,7 @@
 #include "terminal-anim.h"
 #include <poll.h>
 #include <signal.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -28,9 +29,9 @@ void tau_destroy(tau_ctx *ctx) {
   if (!ctx)
     return;
 
-  write_in_term(COLOR_RESET_BG);
-  write_in_term(COLOR_RESET_FG);
-  write_in_term(COLOR_RESET);
+  write_in_term(SGR_RESET_BG);
+  write_in_term(SGR_RESET_FG);
+  write_in_term(SGR_RESET_COLORS);
   write_in_term(SHOW_CURSOR);
   write_in_term(ALTERNATIVE_BUFFER_OFF);
   write_in_term(CLEAR_ALL);
@@ -241,17 +242,79 @@ void tau_present(tau_ctx *ctx) {
         char c = (char)cell.symbol;
 
         if (styles_differ(cell.style, cached_style)) {
+          uint32_t added_styles = cell.style.attrs & ~cached_style.attrs;
+          uint32_t removed_styles = cached_style.attrs & ~cell.style.attrs;
+          bool font_style_differs = cell.style.attrs != cached_style.attrs;
           cached_style = cell.style;
+
+          // font styles
+          if (font_style_differs) {
+            if (removed_styles & TAU_ATTR_BOLD)
+              write_in_buffer(&cursor, SGR_BOLD_OFF);
+            if (removed_styles & TAU_ATTR_FAINT)
+              write_in_buffer(&cursor, SGR_FAINT_OFF);
+            if (removed_styles & TAU_ATTR_ITALIC)
+              write_in_buffer(&cursor, SGR_ITALIC_OFF);
+            if (removed_styles & TAU_ATTR_UNDERLINE)
+              write_in_buffer(&cursor, SGR_UNDERLINE_OFF);
+            if (removed_styles & TAU_ATTR_BLINK_S)
+              write_in_buffer(&cursor, SGR_BLINK_OFF);
+            if (removed_styles & TAU_ATTR_BLINK_F)
+              write_in_buffer(&cursor, SGR_BLINK_OFF);
+            if (removed_styles & TAU_ATTR_REVERSE)
+              write_in_buffer(&cursor, SGR_REVERSE_OFF);
+            if (removed_styles & TAU_ATTR_CONCEAL)
+              write_in_buffer(&cursor, SGR_CONCEAL_OFF);
+            if (removed_styles & TAU_ATTR_STRIKE)
+              write_in_buffer(&cursor, SGR_STRIKE_OFF);
+            if (removed_styles & TAU_ATTR_DOUBLE_UNDERLINE)
+              write_in_buffer(&cursor, SGR_DOUBLE_UNDERLINE_OFF);
+            if (removed_styles & TAU_ATTR_FRAME)
+              write_in_buffer(&cursor, SGR_FRAME_OFF);
+            if (removed_styles & TAU_ATTR_ENCIRCLE)
+              write_in_buffer(&cursor, SGR_ENCIRCLE_OFF);
+            if (removed_styles & TAU_ATTR_OVERLINE)
+              write_in_buffer(&cursor, SGR_OVERLINE_OFF);
+
+            if (added_styles & TAU_ATTR_BOLD)
+              write_in_buffer(&cursor, SGR_BOLD);
+            if (added_styles & TAU_ATTR_FAINT)
+              write_in_buffer(&cursor, SGR_FAINT);
+            if (added_styles & TAU_ATTR_ITALIC)
+              write_in_buffer(&cursor, SGR_ITALIC);
+            if (added_styles & TAU_ATTR_UNDERLINE)
+              write_in_buffer(&cursor, SGR_UNDERLINE);
+            if (added_styles & TAU_ATTR_BLINK_S)
+              write_in_buffer(&cursor, SGR_BLINK_SLOW);
+            if (added_styles & TAU_ATTR_BLINK_F)
+              write_in_buffer(&cursor, SGR_BLINK_RAPID);
+            if (added_styles & TAU_ATTR_REVERSE)
+              write_in_buffer(&cursor, SGR_REVERSE);
+            if (added_styles & TAU_ATTR_CONCEAL)
+              write_in_buffer(&cursor, SGR_CONCEAL);
+            if (added_styles & TAU_ATTR_STRIKE)
+              write_in_buffer(&cursor, SGR_STRIKE);
+            if (added_styles & TAU_ATTR_DOUBLE_UNDERLINE)
+              write_in_buffer(&cursor, SGR_DOUBLE_UNDERLINE);
+            if (added_styles & TAU_ATTR_FRAME)
+              write_in_buffer(&cursor, SGR_FRAME);
+            if (added_styles & TAU_ATTR_ENCIRCLE)
+              write_in_buffer(&cursor, SGR_ENCIRCLE);
+            if (added_styles & TAU_ATTR_OVERLINE)
+              write_in_buffer(&cursor, SGR_OVERLINE);
+          }
+
+          // colors
           if (cached_style.has_bg && cached_style.has_fg) {
             write_in_buffer_colors(&cursor, cached_style.fg, cached_style.bg);
           } else if (cached_style.has_bg && !cached_style.has_fg) {
             write_in_buffer_bg_color(&cursor, cached_style.bg);
-            write_in_buffer(&cursor, COLOR_RESET_FG);
+            write_in_buffer(&cursor, SGR_RESET_FG);
           } else if (cached_style.has_fg && !cached_style.has_bg) {
             write_in_buffer_fg_color(&cursor, cached_style.fg);
-            write_in_buffer(&cursor, COLOR_RESET_BG);
+            write_in_buffer(&cursor, SGR_RESET_BG);
           } else {
-            write_in_buffer(&cursor, COLOR_RESET);
+            write_in_buffer(&cursor, SGR_RESET_COLORS);
           }
         }
 

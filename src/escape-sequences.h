@@ -20,12 +20,49 @@
 #define CURSOR_TO_F CSI "%d;%d" CURSOR_CMD
 #define CLEAR_SCREEN CSI "2J"
 #define CLEAR_ALL CLEAR_SCREEN CURSOR_HOME
-#define COLOR_FG_F CSI "38;2;%d;%d;%dm"
-#define COLOR_BG_F CSI "48;2;%d;%d;%dm"
-#define COLOR_F CSI "38;2;%d;%d;%d;48;2;%d;%d;%dm"
-#define COLOR_RESET CSI "0m"
-#define COLOR_RESET_FG CSI "39m"
-#define COLOR_RESET_BG CSI "49m"
+
+// Colors
+// Note: _RGB means formatted
+#define SGR_FG_RGB CSI "38;2;%d;%d;%dm"
+#define SGR_BG_RGB CSI "48;2;%d;%d;%dm"
+#define SGR_FG_BG_RGB CSI "38;2;%d;%d;%d;48;2;%d;%d;%dm"
+
+#define SGR_RESET_COLORS CSI "39;49m"
+#define SGR_RESET_FG CSI "39m"
+#define SGR_RESET_BG CSI "49m"
+
+// Styles
+#define SGR_RESET CSI "0m"
+
+#define SGR_BOLD CSI "1m"
+#define SGR_FAINT CSI "2m"
+#define SGR_ITALIC CSI "3m"
+#define SGR_UNDERLINE CSI "4m"
+#define SGR_BLINK_SLOW CSI "5m"
+#define SGR_BLINK_RAPID CSI "6m"
+#define SGR_REVERSE CSI "7m"
+#define SGR_CONCEAL CSI "8m"
+#define SGR_STRIKE CSI "9m"
+
+#define SGR_BOLD_OFF CSI "22m"
+#define SGR_FAINT_OFF CSI "22m"
+#define SGR_ITALIC_OFF CSI "23m"
+#define SGR_UNDERLINE_OFF CSI "24m"
+#define SGR_BLINK_OFF CSI "25m"
+#define SGR_REVERSE_OFF CSI "27m"
+#define SGR_CONCEAL_OFF CSI "28m"
+#define SGR_STRIKE_OFF CSI "29m"
+
+// Less supported styles
+#define SGR_DOUBLE_UNDERLINE CSI "21m"
+#define SGR_FRAME CSI "51m"
+#define SGR_ENCIRCLE CSI "52m"
+#define SGR_OVERLINE CSI "53m"
+
+#define SGR_DOUBLE_UNDERLINE_OFF CSI "24m"
+#define SGR_FRAME_OFF CSI "54m"
+#define SGR_ENCIRCLE_OFF CSI "54m"
+#define SGR_OVERLINE_OFF CSI "55m"
 
 // Not in the ECMA spec, Xterm control sequences
 #define HIDE_CURSOR CSI "?25l"
@@ -70,18 +107,18 @@ static inline void write_in_buffer_move(char **buffer_cursor, int row,
 
 static inline void write_in_buffer_fg_color(char **buffer_cursor,
                                             tau_rgb color) {
-  write_in_buffer_f(buffer_cursor, COLOR_FG_F, color.r, color.g, color.b);
+  write_in_buffer_f(buffer_cursor, SGR_FG_RGB, color.r, color.g, color.b);
 }
 
 static inline void write_in_buffer_bg_color(char **buffer_cursor,
                                             tau_rgb color) {
-  write_in_buffer_f(buffer_cursor, COLOR_BG_F, color.r, color.g, color.b);
+  write_in_buffer_f(buffer_cursor, SGR_BG_RGB, color.r, color.g, color.b);
 }
 
 static inline void write_in_buffer_colors(char **buffer_cursor,
                                           tau_rgb fg_color, tau_rgb bg_color) {
-  write_in_buffer_f(buffer_cursor, COLOR_F, fg_color.r, fg_color.g, fg_color.b,
-                    bg_color.r, bg_color.g, bg_color.b);
+  write_in_buffer_f(buffer_cursor, SGR_FG_BG_RGB, fg_color.r, fg_color.g,
+                    fg_color.b, bg_color.r, bg_color.g, bg_color.b);
 }
 
 #endif

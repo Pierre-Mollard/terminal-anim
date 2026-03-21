@@ -1,4 +1,3 @@
-#include "escape-sequences.h"
 #include "platform.h"
 #include "scene.h"
 #include "terminal-anim.h"
