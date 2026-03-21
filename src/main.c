@@ -42,25 +42,30 @@ void handle_user_input(char c) {
 void draw_screen(tau_ctx *ctx) {
 
   tau_style bg_style = {0};
-  bg_style.fg_r = 0;
-  bg_style.fg_g = 0;
-  bg_style.fg_b = 0;
+  bg_style.fg.r = 0;
+  bg_style.fg.g = 0;
+  bg_style.fg.b = 0;
   tau_fill(ctx, ' ', bg_style);
 
   tau_style red = {0};
-  red.fg_r = 255;
+  red.fg.r = 255;
+  red.has_fg = true;
   tau_style green = {0};
-  green.fg_g = 255;
+  green.fg.g = 255;
+  green.has_fg = true;
   tau_style blue = {0};
-  blue.fg_b = 255;
+  blue.fg.b = 255;
+  blue.has_fg = true;
   tau_style gray = {0};
-  gray.fg_r = 120;
-  gray.fg_g = 120;
-  gray.fg_b = 120;
+  gray.fg.r = 120;
+  gray.fg.g = 120;
+  gray.fg.b = 120;
+  gray.has_fg = true;
   tau_style white = {0};
-  white.fg_r = 255;
-  white.fg_g = 255;
-  white.fg_b = 255;
+  white.fg.r = 255;
+  white.fg.g = 255;
+  white.fg.b = 255;
+  white.has_fg = true;
   tau_put_square(ctx, 10, 20, 5, 5, green);
   tau_put_square(ctx, 20, 30, 50, 7, blue);
   tau_put_square(ctx, user_x, user_y, 5, 5, gray);

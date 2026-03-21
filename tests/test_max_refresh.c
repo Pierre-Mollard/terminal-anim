@@ -112,9 +112,9 @@ int main(int argc, char *argv[]) {
     int counter = 0;
 
     tau_style bg_style = {0};
-    bg_style.fg_b = 255;
-    bg_style.fg_g = 255;
-    bg_style.fg_r = 255;
+    bg_style.fg.b = 255;
+    bg_style.fg.g = 255;
+    bg_style.fg.r = 255;
 
     tau_fill(ctx, used_char, bg_style);
     tau_draw(ctx);

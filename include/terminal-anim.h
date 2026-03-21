@@ -2,6 +2,7 @@
 #define TERMINAL_ANIM_PUB_LIB_H
 
 #include <signal.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -9,12 +10,23 @@
 
 // Context descriptor
 typedef struct tau_ctx tau_ctx;
-struct tau_style {
-  uint8_t fg_r, fg_g, fg_b;
-  uint8_t bg_r, bg_g, bg_b;
+
+typedef struct tau_rgb {
+  uint8_t r, g, b;
+} tau_rgb;
+
+typedef struct tau_style {
+  tau_rgb fg;
+  tau_rgb bg;
+  bool has_fg;
+  bool has_bg;
   uint8_t attrs;
-};
-typedef struct tau_style tau_style;
+  bool is_valid;
+} tau_style;
+
+#define TAU_STYLE_INVALID ((tau_style){.is_valid = false})
+#define TAU_STYLE_DEFAULT                                                      \
+  ((tau_style){.is_valid = true, .has_fg = false, .has_bg = false})
 
 tau_ctx *tau_create();
 void tau_destroy(tau_ctx *ctx);

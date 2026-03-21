@@ -1,5 +1,6 @@
 #include "terminal-anim.h"
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -14,16 +15,19 @@ int main(int argc, char *argv[]) {
   }
 
   tau_style bg_style = {0};
-  bg_style.fg_b = 255;
-  bg_style.fg_g = 255;
+  bg_style.fg.b = 255;
+  bg_style.fg.g = 255;
+  bg_style.has_fg = true;
 
   tau_style fg_style = {0};
-  bg_style.fg_r = 255;
+  fg_style.fg.r = 255;
+  fg_style.has_fg = true;
 
   tau_style text_style = {0};
-  text_style.fg_r = 255;
-  text_style.fg_g = 255;
-  text_style.fg_g = 100;
+  text_style.fg.r = 255;
+  text_style.fg.g = 255;
+  text_style.fg.b = 100;
+  text_style.has_fg = true;
 
   tau_fill(ctx, '_', bg_style);
   tau_present(ctx);

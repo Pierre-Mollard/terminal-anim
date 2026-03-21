@@ -2,16 +2,19 @@
 #include "terminal-anim.h"
 
 #include "platform.h"
+#include <stdbool.h>
 
 void tau_clear(tau_ctx *ctx) {
   for (size_t i = 0; i < ctx->nb_cells; i++) {
     ctx->back_buffer[i].symbol = ' ';
-    ctx->back_buffer[i].style.fg_r = 255;
-    ctx->back_buffer[i].style.fg_g = 255;
-    ctx->back_buffer[i].style.fg_b = 255;
-    ctx->back_buffer[i].style.bg_r = 0;
-    ctx->back_buffer[i].style.bg_g = 0;
-    ctx->back_buffer[i].style.bg_b = 0;
+    ctx->back_buffer[i].style.fg.r = 255;
+    ctx->back_buffer[i].style.fg.g = 255;
+    ctx->back_buffer[i].style.fg.b = 255;
+    ctx->back_buffer[i].style.has_fg = false;
+    ctx->back_buffer[i].style.bg.r = 0;
+    ctx->back_buffer[i].style.bg.g = 0;
+    ctx->back_buffer[i].style.bg.b = 0;
+    ctx->back_buffer[i].style.has_bg = false;
     ctx->back_buffer[i].style.attrs = 0;
   }
 }

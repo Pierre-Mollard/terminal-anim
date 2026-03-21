@@ -1,6 +1,7 @@
 #ifndef TERMINAL_ANIM_LIB_H
 #define TERMINAL_ANIM_LIB_H
 
+#include "terminal-anim.h"
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -19,7 +20,12 @@
 #define CURSOR_TO_F CSI "%d;%d" CURSOR_CMD
 #define CLEAR_SCREEN CSI "2J"
 #define CLEAR_ALL CLEAR_SCREEN CURSOR_HOME
-#define COLOR_F CSI "38;2;%d;%d;%dm"
+#define COLOR_FG_F CSI "38;2;%d;%d;%dm"
+#define COLOR_BG_F CSI "48;2;%d;%d;%dm"
+#define COLOR_F CSI "38;2;%d;%d;%d;48;2;%d;%d;%dm"
+#define COLOR_RESET CSI "0m"
+#define COLOR_RESET_FG CSI "39m"
+#define COLOR_RESET_BG CSI "49m"
 
 // Not in the ECMA spec, Xterm control sequences
 #define HIDE_CURSOR CSI "?25l"
@@ -62,9 +68,20 @@ static inline void write_in_buffer_move(char **buffer_cursor, int row,
   write_in_buffer_f(buffer_cursor, CURSOR_TO_F, row, col);
 }
 
-static inline void write_in_buffer_color(char **buffer_cursor, int r, int g,
-                                         int b) {
-  write_in_buffer_f(buffer_cursor, COLOR_F, r, g, b);
+static inline void write_in_buffer_fg_color(char **buffer_cursor,
+                                            tau_rgb color) {
+  write_in_buffer_f(buffer_cursor, COLOR_FG_F, color.r, color.g, color.b);
+}
+
+static inline void write_in_buffer_bg_color(char **buffer_cursor,
+                                            tau_rgb color) {
+  write_in_buffer_f(buffer_cursor, COLOR_BG_F, color.r, color.g, color.b);
+}
+
+static inline void write_in_buffer_colors(char **buffer_cursor,
+                                          tau_rgb fg_color, tau_rgb bg_color) {
+  write_in_buffer_f(buffer_cursor, COLOR_F, fg_color.r, fg_color.g, fg_color.b,
+                    bg_color.r, bg_color.g, bg_color.b);
 }
 
 #endif

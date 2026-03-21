@@ -28,6 +28,9 @@ void tau_destroy(tau_ctx *ctx) {
   if (!ctx)
     return;
 
+  write_in_term(COLOR_RESET_BG);
+  write_in_term(COLOR_RESET_FG);
+  write_in_term(COLOR_RESET);
   write_in_term(SHOW_CURSOR);
   write_in_term(ALTERNATIVE_BUFFER_OFF);
   write_in_term(CLEAR_ALL);
@@ -187,14 +190,15 @@ void tau_draw(tau_ctx *ctx) {
          ctx->nb_cells * sizeof(*ctx->front_buffer));
 }
 
-int compare_styles(struct tau_style a, struct tau_style b) {
-  return a.attrs != b.attrs || a.bg_r != b.bg_r || a.bg_g != b.bg_g ||
-         a.bg_b != b.bg_b || a.fg_r != b.fg_r || a.fg_g != b.fg_g ||
-         a.fg_b != b.fg_b;
+int styles_differ(struct tau_style a, struct tau_style b) {
+  return a.attrs != b.attrs || a.bg.r != b.bg.r || a.bg.g != b.bg.g ||
+         a.bg.b != b.bg.b || a.fg.r != b.fg.r || a.fg.g != b.fg.g ||
+         a.fg.b != b.fg.b || a.has_fg != b.has_fg || a.has_bg != b.has_bg ||
+         a.is_valid != b.is_valid;
 }
 
-int compare_cells(struct tau_cell a, struct tau_cell b) {
-  return a.symbol != b.symbol || compare_styles(a.style, b.style);
+int cells_differ(struct tau_cell a, struct tau_cell b) {
+  return a.symbol != b.symbol || styles_differ(a.style, b.style);
 }
 
 // draws the difference between back buffer (what is new from the user)
@@ -215,7 +219,7 @@ void tau_present(tau_ctx *ctx) {
     for (size_t col = 0; col < ctx->nb_cols; col++) {
       size_t i = row * ctx->nb_cols + col;
 
-      if (compare_cells(ctx->back_buffer[i], ctx->front_buffer[i])) {
+      if (cells_differ(ctx->back_buffer[i], ctx->front_buffer[i])) {
         // first diff in line, get the x value
         if (!diff_in_line) {
           diff_in_line = 1;
@@ -230,11 +234,27 @@ void tau_present(tau_ctx *ctx) {
     if (diff_in_line) {
       write_in_buffer_move(&cursor, row + 1, first_diff_x + 1);
 
+      tau_style cached_style = TAU_STYLE_INVALID;
+
       for (size_t i = first_index; i <= last_index; i++) {
         struct tau_cell cell = ctx->back_buffer[i];
         char c = (char)cell.symbol;
-        write_in_buffer_color(&cursor, cell.style.fg_r, cell.style.fg_g,
-                              cell.style.fg_b);
+
+        if (styles_differ(cell.style, cached_style)) {
+          cached_style = cell.style;
+          if (cached_style.has_bg && cached_style.has_fg) {
+            write_in_buffer_colors(&cursor, cached_style.fg, cached_style.bg);
+          } else if (cached_style.has_bg && !cached_style.has_fg) {
+            write_in_buffer_bg_color(&cursor, cached_style.bg);
+            write_in_buffer(&cursor, COLOR_RESET_FG);
+          } else if (cached_style.has_fg && !cached_style.has_bg) {
+            write_in_buffer_fg_color(&cursor, cached_style.fg);
+            write_in_buffer(&cursor, COLOR_RESET_BG);
+          } else {
+            write_in_buffer(&cursor, COLOR_RESET);
+          }
+        }
+
         if (c == '\0')
           c = ' ';
         *cursor++ = c;
