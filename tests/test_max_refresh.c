@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
     bg_style.fg.r = 255;
 
     tau_fill(ctx, used_char, bg_style);
-    tau_draw(ctx);
+    tau_draw_init(ctx);
 
     while (tau_g_is_running) {
       counter++;
@@ -126,7 +126,7 @@ int main(int argc, char *argv[]) {
         used_char = '@';
       }
       tau_fill(ctx, used_char, bg_style);
-      tau_present(ctx);
+      tau_draw_update(ctx);
       while (nanosleep(&ts, &ts) == -1 && errno == EINTR) {
         // retry with remaining time
       }

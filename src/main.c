@@ -87,7 +87,7 @@ void draw_screen(tau_ctx *ctx) {
   // disabled: scene_update(&cursor, 0, 0, screen_max_cols / 3, screen_max_rows
   // / 3);
 
-  tau_present(ctx);
+  tau_draw_update(ctx);
 }
 
 int main(int argc, char *argv[]) {
