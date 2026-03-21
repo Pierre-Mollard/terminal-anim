@@ -43,3 +43,7 @@ target_link_libraries(TestMaxRefresh PRIVATE TAlib)
 add_executable(TestClearScreen)
 target_sources(TestClearScreen PRIVATE tests/test_clear.c)
 target_link_libraries(TestClearScreen PRIVATE TAlib)
+
+add_executable(TestStyles)
+target_sources(TestStyles PRIVATE tests/test_styles.c)
+target_link_libraries(TestStyles PRIVATE TAlib)

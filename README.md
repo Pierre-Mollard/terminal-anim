@@ -1,6 +1,4 @@
-# ----------
 # Intro
-# ----------
 
 This project is inspired by [Terminal Text Effects](https://github.com/ChrisBuilds/terminaltexteffects).
 
@@ -17,6 +15,11 @@ Build project (same as 'make' when using Makefiles):
 cmake --build build
 '''
 
+## TODO List
 TODO: 
-[ ] Make debug prints somewhere else than main drawing area
+[] Make debug prints somewhere else than main drawing area
+[ ] Resize screen adapt buffers
+[ ] Mouse detection event
+[ ] Animation system
 
+Copyright (c) 2026 Pierre Mollard. All Rights Reserved.
