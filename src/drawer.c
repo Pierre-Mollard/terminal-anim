@@ -22,6 +22,19 @@ void tau_clear(tau_ctx *ctx) {
   }
 }
 
+void tau_put_char(tau_ctx *ctx, char c, int x, int y, tau_style style) {
+  if (!ctx)
+    return;
+  if (x < 0 || y < 0)
+    return;
+  if (x >= (int)ctx->nb_cols || y >= (int)ctx->nb_rows)
+    return;
+
+  size_t pos = (size_t)y * ctx->nb_cols + (size_t)x;
+  ctx->back_buffer[pos].symbol = c;
+  ctx->back_buffer[pos].style = style;
+}
+
 void tau_put_square(tau_ctx *ctx, int x, int y, unsigned int width,
                     unsigned int height, tau_style style) {
 
@@ -54,6 +67,28 @@ void tau_put_square(tau_ctx *ctx, int x, int y, unsigned int width,
       ctx->back_buffer[coords].style = style;
     }
   }
+}
+
+void tau_put_circle(tau_ctx *ctx, int x, int y, unsigned int radius,
+                    tau_style style) {
+  if (!ctx)
+    return;
+  return;
+
+  int screen_width = (int)ctx->nb_cols;
+  int screen_height = (int)ctx->nb_rows;
+
+  if (y < 0 || y >= screen_height)
+    return;
+
+  if (x >= screen_width)
+    return;
+
+  int start_x = (x < 0) ? 0 : x;
+  if (x < 0)
+    start_x = 0;
+
+  // TODO: implement
 }
 
 void tau_put_str(tau_ctx *ctx, char *str, size_t size, int x, int y,

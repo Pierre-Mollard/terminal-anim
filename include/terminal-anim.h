@@ -53,8 +53,11 @@ void tau_fill(tau_ctx *ctx, uint32_t symbol, tau_style style);
 void tau_draw_full(tau_ctx *ctx);
 void tau_draw_diff(tau_ctx *ctx);
 void tau_clear(tau_ctx *ctx);
+void tau_put_char(tau_ctx *ctx, char c, int x, int y, tau_style style);
 void tau_put_square(tau_ctx *ctx, int x, int y, unsigned int width,
                     unsigned int height, tau_style style);
+void tau_put_circle(tau_ctx *ctx, int x, int y, unsigned int radius,
+                    tau_style style);
 void tau_put_str(tau_ctx *ctx, char *str, size_t size, int x, int y,
                  tau_style style);
 

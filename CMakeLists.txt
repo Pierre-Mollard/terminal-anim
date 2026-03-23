@@ -47,3 +47,7 @@ target_link_libraries(TestClearScreen PRIVATE TAlib)
 add_executable(TestStyles)
 target_sources(TestStyles PRIVATE tests/test_styles.c)
 target_link_libraries(TestStyles PRIVATE TAlib)
+
+add_executable(TestShapes)
+target_sources(TestShapes PRIVATE tests/test_shapes.c)
+target_link_libraries(TestShapes PRIVATE TAlib)

@@ -18,7 +18,8 @@ cmake --build build
 ## TODO List
 TODO: 
 [] Make debug prints somewhere else than main drawing area
-[ ] Resize screen adapt buffers
+[] Resize screen adapt buffers
+[ ] Add more shapes and refactor reuse code
 [ ] Mouse detection event
 [ ] Animation system
 
