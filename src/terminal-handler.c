@@ -27,6 +27,7 @@ void resize_screen_callback(int new_rows, int new_cols) {
 
   if (g_active_ctx != NULL) {
     tau_resize_buffers(g_active_ctx, new_rows, new_cols);
+    tau_draw_full(g_active_ctx);
   }
 }
 

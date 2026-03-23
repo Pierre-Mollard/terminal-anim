@@ -37,14 +37,14 @@ int main(int argc, char *argv[]) {
   text3_style.attrs = TAU_ATTR_ITALIC;
 
   tau_fill(ctx, '_', bg_style);
-  tau_draw_update(ctx);
+  tau_draw_diff(ctx);
   sleep(1);
   tau_put_square(ctx, 10, 10, 10, 10, fg_style);
   char *text = "this is a test";
   tau_put_str(ctx, text, strlen(text), 4, 4, text_style);
   tau_put_str(ctx, text, strlen(text), -2, 2, text2_style);
   tau_put_str(ctx, text, strlen(text), 180, 6, text3_style);
-  tau_draw_update(ctx);
+  tau_draw_diff(ctx);
   sleep(1);
 
   tau_destroy(ctx);

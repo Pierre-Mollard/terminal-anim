@@ -180,7 +180,7 @@ int cells_differ(struct tau_cell a, struct tau_cell b) {
   return a.symbol != b.symbol || styles_differ(a.style, b.style);
 }
 
-void tau_draw_init(tau_ctx *ctx) {
+void tau_draw_full(tau_ctx *ctx) {
   if (!ctx || !ctx->back_buffer || !ctx->output_buffer)
     return;
 
@@ -225,7 +225,7 @@ void tau_draw_init(tau_ctx *ctx) {
 // draws the difference between back buffer (what is new from the user)
 // and front buffer (believed to be on screen)
 // NOTE: current algo redraws in-between first and last diff in each row
-void tau_draw_update(tau_ctx *ctx) {
+void tau_draw_diff(tau_ctx *ctx) {
   if (!ctx || !ctx->front_buffer || !ctx->back_buffer || !ctx->output_buffer)
     return;
 
@@ -274,7 +274,7 @@ void tau_draw_update(tau_ctx *ctx) {
       // UPDATES front buffer to be what is on screen (with only the part that
       // changed)
       memcpy(&ctx->front_buffer[first_index], &ctx->back_buffer[first_index],
-             (last_index - first_index - 1) * sizeof(*ctx->back_buffer));
+             (last_index - first_index + 1) * sizeof(*ctx->back_buffer));
     }
   }
 

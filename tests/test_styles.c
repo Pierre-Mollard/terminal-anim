@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
   bg_style.has_fg = true;
 
   tau_fill(ctx, '.', bg_style);
-  tau_draw_init(ctx);
+  tau_draw_full(ctx);
 
   char *text = "this is a test";
   for (size_t i = 0; i < sizeof(all_style_types) / sizeof(all_style_types[0]);
@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
     tau_put_str(ctx, text, strlen(text), 4, 4 + i, dynamic_style);
   }
 
-  tau_draw_update(ctx);
+  tau_draw_diff(ctx);
   sleep(3);
 
   tau_destroy(ctx);
