@@ -4,11 +4,13 @@
 #include "terminal-anim.h"
 #include <poll.h>
 #include <signal.h>
+#include <stdatomic.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/poll.h>
 #include <termios.h>
 #include <unistd.h>
@@ -22,6 +24,10 @@ static unsigned int screen_max_rows, screen_max_cols = 0;
 void resize_screen_callback(int new_rows, int new_cols) {
   screen_max_rows = new_rows;
   screen_max_cols = new_cols;
+
+  if (g_active_ctx != NULL) {
+    tau_resize_buffers(g_active_ctx, new_rows, new_cols);
+  }
 }
 
 void tau_destroy(tau_ctx *ctx) {
@@ -147,4 +153,70 @@ tau_ctx *tau_create() {
   write_in_term(ALTERNATIVE_BUFFER_ON);
   write_in_term(CLEAR_ALL);
   return ctx;
+}
+
+void tau_resize_buffers(tau_ctx *ctx, unsigned int rows, unsigned int cols) {
+  if (ctx == NULL)
+    return;
+
+  if (rows == 0 || cols == 0)
+    return;
+
+  if (rows > SIZE_MAX / cols)
+    return;
+
+  size_t new_nb_cells = rows * cols;
+
+  if (new_nb_cells > SIZE_MAX / sizeof(*ctx->back_buffer))
+    return;
+
+  struct tau_cell *new_back = calloc(new_nb_cells, sizeof(*new_back));
+  if (new_back == NULL)
+    return;
+
+  if (new_nb_cells > SIZE_MAX / sizeof(*ctx->front_buffer)) {
+    free(new_back);
+    return;
+  }
+
+  struct tau_cell *new_front = calloc(new_nb_cells, sizeof(*new_front));
+  if (new_front == NULL) {
+    free(new_back);
+    return;
+  }
+
+  if (new_nb_cells > SIZE_MAX / BYTES_PER_PIXEL) {
+    free(new_back);
+    free(new_front);
+    return;
+  }
+  size_t new_output_capacity = new_nb_cells * BYTES_PER_PIXEL;
+  char *new_output = calloc(new_output_capacity, sizeof(*new_output));
+  if (!new_output) {
+    free(new_back);
+    free(new_front);
+    return;
+  }
+
+  size_t min_rows = ctx->nb_rows < rows ? ctx->nb_rows : rows;
+  size_t min_cols = ctx->nb_cols < cols ? ctx->nb_cols : cols;
+
+  for (size_t y = 0; y < min_rows; y++) {
+    memcpy(&new_back[y * cols], &ctx->back_buffer[y * ctx->nb_cols],
+           min_cols * sizeof(*new_back));
+    memcpy(&new_front[y * cols], &ctx->front_buffer[y * ctx->nb_cols],
+           min_cols * sizeof(*new_front));
+  }
+
+  free(ctx->back_buffer);
+  free(ctx->front_buffer);
+  free(ctx->output_buffer);
+
+  ctx->nb_rows = rows;
+  ctx->nb_cols = cols;
+  ctx->nb_cells = new_nb_cells;
+  ctx->output_capacity = new_output_capacity;
+  ctx->back_buffer = new_back;
+  ctx->front_buffer = new_front;
+  ctx->output_buffer = new_output;
 }
