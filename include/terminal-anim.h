@@ -60,6 +60,8 @@ void tau_put_circle(tau_ctx *ctx, int x, int y, unsigned int radius,
                     tau_style style);
 void tau_put_str(tau_ctx *ctx, char *str, size_t size, int x, int y,
                  tau_style style);
+void tau_put_line(tau_ctx *ctx, int x1, int y1, int x2, int y2,
+                  tau_style style);
 
 extern volatile sig_atomic_t tau_g_is_running;
 

@@ -6,6 +6,7 @@
 #include "platform.h"
 #include <math.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include <string.h>
 
 void tau_clear(tau_ctx *ctx) {
@@ -320,5 +321,35 @@ void tau_draw_diff(tau_ctx *ctx) {
   size_t len = (size_t)(cursor - ctx->output_buffer);
   if (len > 0) {
     write(STDOUT_FILENO, ctx->output_buffer, len);
+  }
+}
+
+void tau_put_line(tau_ctx *ctx, int x1, int y1, int x2, int y2,
+                  tau_style style) {
+  if (!ctx)
+    return;
+
+  int dx = abs(x2 - x1);
+  int dy = -abs(y2 - y1);
+  int sx = x1 < x2 ? 1 : -1;
+  int sy = y1 < y2 ? 1 : -1;
+  int err = dx + dy;
+
+  while (1) {
+    tau_put_char(ctx, 'L', x1, y1, style);
+
+    if (x1 == x2 && y1 == y2)
+      break;
+
+    int e2 = 2 * err;
+    if (e2 >= dy) {
+      err += dy;
+      x1 += sx;
+    }
+
+    if (e2 <= dx) {
+      err += dx;
+      y1 += sy;
+    }
   }
 }
