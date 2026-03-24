@@ -4,6 +4,7 @@
 #include "terminal-anim.h"
 
 #include "platform.h"
+#include <math.h>
 #include <stdbool.h>
 #include <string.h>
 
@@ -69,26 +70,28 @@ void tau_put_square(tau_ctx *ctx, int x, int y, unsigned int width,
   }
 }
 
-void tau_put_circle(tau_ctx *ctx, int x, int y, unsigned int radius,
+void tau_put_circle(tau_ctx *ctx, int c_x, int c_y, unsigned int radius,
                     tau_style style) {
   if (!ctx)
     return;
-  return;
 
   int screen_width = (int)ctx->nb_cols;
   int screen_height = (int)ctx->nb_rows;
 
-  if (y < 0 || y >= screen_height)
-    return;
+  for (int x = 0; x < screen_width; x++) {
+    for (int y = 0; y < screen_height; y++) {
+      int coords = y * ctx->nb_cols + x;
 
-  if (x >= screen_width)
-    return;
+      double dx = (x - c_x) * 0.5;
+      double dy = y - c_y;
+      double dist = dx * dx + dy * dy;
 
-  int start_x = (x < 0) ? 0 : x;
-  if (x < 0)
-    start_x = 0;
-
-  // TODO: implement
+      if (dist < radius * radius) {
+        ctx->back_buffer[coords].symbol = 'H';
+        ctx->back_buffer[coords].style = style;
+      }
+    }
+  }
 }
 
 void tau_put_str(tau_ctx *ctx, char *str, size_t size, int x, int y,

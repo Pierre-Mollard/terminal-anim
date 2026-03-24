@@ -31,7 +31,6 @@ int main(int argc, char *argv[]) {
 
   tau_style text2_style = text_style;
   text2_style.attrs |= TAU_ATTR_BOLD;
-  text2_style.attrs |= TAU_ATTR_DOUBLE_UNDERLINE;
 
   tau_style text3_style = text_style;
   text3_style.attrs = TAU_ATTR_ITALIC;
@@ -41,15 +40,18 @@ int main(int argc, char *argv[]) {
 
   tau_put_square(ctx, 50, 10, 10, 10, fg_style);
 
-  tau_put_char(ctx, 'O', 10, 10, fg_style);
-  tau_put_char(ctx, 'O', 11, 11, text3_style);
+  tau_put_char(ctx, 'O', 10, 10, text_style);
+  tau_put_char(ctx, 'O', 11, 11, text_style);
   tau_put_char(ctx, 'O', 9, 9, text_style);
-  tau_put_char(ctx, 'O', 9, 11, text2_style);
+  tau_put_char(ctx, 'O', 9, 11, text_style);
 
   char *text = "shape test";
   tau_put_str(ctx, text, strlen(text), 4, 4, text2_style);
 
-  tau_put_circle(ctx, 20, 20, 4, fg_style);
+  tau_put_char(ctx, 'X', 90, 30, text_style);
+  tau_put_circle(ctx, 90, 30, 4, fg_style);
+  tau_put_char(ctx, 'X', 90, 10, text_style);
+  tau_put_circle(ctx, 90, 10, 9, fg_style);
   tau_draw_diff(ctx);
   sleep(5);
 
