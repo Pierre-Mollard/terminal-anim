@@ -8,6 +8,7 @@
 tau_ctx *ctx;
 tau_style bg_style = {0};
 tau_style fg_style = {0};
+tau_style fg_light_style = {0};
 tau_style text_style = {0};
 
 void test_line(int x1, int y1, int x2, int y2) {
@@ -17,7 +18,8 @@ void test_line(int x1, int y1, int x2, int y2) {
     return;
   }
 
-  tau_put_line(ctx, x1, y1, x2, y2, fg_style);
+  tau_put_line(ctx, x1, y1, x2, y2, fg_light_style);
+  tau_put_line_aspect(ctx, x1, y1, x2, y2, '#', fg_style);
   tau_put_char(ctx, 'O', x1, y1, text_style);
   tau_put_char(ctx, 'O', x2, y2, text_style);
 }
@@ -37,6 +39,9 @@ int main(int argc, char *argv[]) {
   fg_style.fg.r = 255;
   fg_style.has_fg = true;
 
+  fg_light_style.fg.b = 255;
+  fg_light_style.has_fg = true;
+
   text_style.fg.r = 255;
   text_style.fg.g = 255;
   text_style.fg.b = 100;
@@ -46,7 +51,7 @@ int main(int argc, char *argv[]) {
   tau_draw_full(ctx);
 
   char *text = "line test";
-  tau_put_str(ctx, text, strlen(text), 4, 4, text_style);
+  tau_put_str(ctx, text, strlen(text), 2, 1, text_style);
 
   int x1 = 4;
   int x2 = 50;

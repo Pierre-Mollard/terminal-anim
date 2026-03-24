@@ -324,32 +324,63 @@ void tau_draw_diff(tau_ctx *ctx) {
   }
 }
 
-void tau_put_line(tau_ctx *ctx, int x1, int y1, int x2, int y2,
+void tau_put_line(tau_ctx *ctx, int x0, int y0, int x1, int y1,
                   tau_style style) {
   if (!ctx)
     return;
 
-  int dx = abs(x2 - x1);
-  int dy = -abs(y2 - y1);
-  int sx = x1 < x2 ? 1 : -1;
-  int sy = y1 < y2 ? 1 : -1;
+  int dx = abs(x1 - x0);
+  int dy = -abs(y1 - y0);
+  int sx = x0 < x1 ? 1 : -1;
+  int sy = y0 < y1 ? 1 : -1;
   int err = dx + dy;
 
   while (1) {
-    tau_put_char(ctx, 'L', x1, y1, style);
+    tau_put_char(ctx, 'L', x0, y0, style);
 
-    if (x1 == x2 && y1 == y2)
+    if (x0 == x1 && y0 == y1)
       break;
 
     int e2 = 2 * err;
     if (e2 >= dy) {
       err += dy;
-      x1 += sx;
+      x0 += sx;
     }
 
     if (e2 <= dx) {
       err += dx;
-      y1 += sy;
+      y0 += sy;
     }
+  }
+}
+
+void tau_put_line_aspect(tau_ctx *ctx, int x0, int y0, int x1, int y1, char c,
+                         tau_style style) {
+  double aspect = 2.0; // cell height / cell width
+
+  double px0 = x0;
+  double py0 = y0 * aspect;
+  double px1 = x1;
+  double py1 = y1 * aspect;
+
+  double dx = px1 - px0;
+  double dy = py1 - py0;
+
+  int steps = (int)(fabs(dx) > fabs(dy) ? fabs(dx) : fabs(dy));
+  if (steps == 0) {
+    tau_put_char(ctx, c, x0, y0, style);
+    return;
+  }
+
+  for (int i = 0; i <= steps; i++) {
+    double t = (double)i / (double)steps;
+
+    double px = px0 + t * dx;
+    double py = py0 + t * dy;
+
+    int gx = (int)lround(px);
+    int gy = (int)lround(py / aspect);
+
+    tau_put_char(ctx, c, gx, gy, style);
   }
 }
