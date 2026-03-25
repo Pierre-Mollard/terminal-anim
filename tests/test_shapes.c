@@ -57,6 +57,16 @@ int main(int argc, char *argv[]) {
   tau_put_char(ctx, 'X', 130, 10, text_style);
   tau_put_circle(ctx, 130, 10, 9, fg_style);
 
+  tau_put_char(ctx, 'X', 130, 33, text_style);
+  tau_put_char(ctx, 'X', 127, 36, text_style);
+  tau_put_char(ctx, 'X', 140, 38, text_style);
+  tau_put_triangle(ctx, 130, 33, 127, 36, 140, 38, text_style);
+
+  tau_put_char(ctx, 'X', 150, 33, text_style);
+  tau_put_char(ctx, 'X', 147, 36, text_style);
+  tau_put_char(ctx, 'X', 160, 38, text_style);
+  tau_put_filled_triangle(ctx, 150, 33, 147, 36, 160, 38, text_style);
+
   tau_draw_diff(ctx);
   sleep(5);
 

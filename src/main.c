@@ -65,9 +65,9 @@ void draw_screen(tau_ctx *ctx) {
   white.fg.g = 255;
   white.fg.b = 255;
   white.has_fg = true;
-  tau_put_rectangle(ctx, 10, 20, 5, 5, green);
-  tau_put_rectangle(ctx, 20, 30, 50, 7, blue);
-  tau_put_rectangle(ctx, user_x, user_y, 5, 5, gray);
+  tau_put_filled_rectangle(ctx, 10, 20, 5, 5, green);
+  tau_put_filled_rectangle(ctx, 20, 30, 50, 7, blue);
+  tau_put_filled_rectangle(ctx, user_x, user_y, 5, 5, gray);
 
   char buffer[256];
   snprintf(buffer, 256, "ROWS: %d, COLS: %d", screen_max_rows, screen_max_cols);

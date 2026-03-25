@@ -170,6 +170,26 @@ void tau_put_circle(tau_ctx *ctx, int c_x, int c_y, unsigned int radius,
   }
 }
 
+void tau_put_triangle(tau_ctx *ctx, int x0, int y0, int x1, int y1, int x2,
+                      int y2, tau_style style) {
+  if (!ctx)
+    return;
+
+  tau_put_line_aspect(ctx, x0, y0, x1, y1, 'L', style);
+  tau_put_line_aspect(ctx, x0, y0, x2, y2, 'L', style);
+  tau_put_line_aspect(ctx, x1, y1, x2, y2, 'L', style);
+}
+
+void tau_put_filled_triangle(tau_ctx *ctx, int x0, int y0, int x1, int y1,
+                             int x2, int y2, tau_style style) {
+  if (!ctx)
+    return;
+
+  tau_put_line_aspect(ctx, x0, y0, x1, y1, 'L', style);
+  tau_put_line_aspect(ctx, x0, y0, x2, y2, 'L', style);
+  tau_put_line_aspect(ctx, x1, y1, x2, y2, 'L', style);
+}
+
 void tau_put_str(tau_ctx *ctx, char *str, size_t size, int x, int y,
                  tau_style style) {
   if (!ctx || !str)
