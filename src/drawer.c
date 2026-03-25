@@ -37,8 +37,8 @@ void tau_put_char(tau_ctx *ctx, char c, int x, int y, tau_style style) {
   ctx->back_buffer[pos].style = style;
 }
 
-void tau_put_square(tau_ctx *ctx, int x, int y, unsigned int width,
-                    unsigned int height, tau_style style) {
+void tau_put_filled_rectangle(tau_ctx *ctx, int x, int y, unsigned int width,
+                              unsigned int height, tau_style style) {
 
   unsigned int screen_width, screen_height;
   pf_get_size(&screen_height, &screen_width);
@@ -71,8 +71,44 @@ void tau_put_square(tau_ctx *ctx, int x, int y, unsigned int width,
   }
 }
 
-void tau_put_circle(tau_ctx *ctx, int c_x, int c_y, unsigned int radius,
-                    tau_style style) {
+void tau_put_rectangle(tau_ctx *ctx, int x, int y, unsigned int width,
+                       unsigned int height, tau_style style) {
+
+  unsigned int screen_width, screen_height;
+  pf_get_size(&screen_height, &screen_width);
+
+  if (x >= screen_width || y >= screen_height)
+    return;
+  int start_x = (x < 0) ? 0 : x;
+  int start_y = (y < 0) ? 0 : y;
+
+  int end_x = start_x + width;
+  int end_y = start_y + height;
+
+  if (end_x > screen_width)
+    end_x = screen_width;
+  if (end_y > screen_height)
+    end_y = screen_height;
+
+  int draw_w = end_x - start_x;
+  int draw_h = end_y - start_y;
+
+  if (draw_w <= 0 || draw_h <= 0)
+    return;
+
+  for (int i = start_x; i < end_x; i++) {
+    for (int j = start_y; j < end_y; j++) {
+      int coords = j * ctx->nb_cols + i;
+      if (i == start_x || i == end_x - 1 || j == start_y || j == end_y - 1) {
+        ctx->back_buffer[coords].symbol = 'H';
+        ctx->back_buffer[coords].style = style;
+      }
+    }
+  }
+}
+
+void tau_put_filled_circle(tau_ctx *ctx, int c_x, int c_y, unsigned int radius,
+                           tau_style style) {
   if (!ctx)
     return;
 

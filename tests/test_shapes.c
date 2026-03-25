@@ -38,7 +38,8 @@ int main(int argc, char *argv[]) {
   tau_fill(ctx, '.', bg_style);
   tau_draw_full(ctx);
 
-  tau_put_square(ctx, 50, 10, 10, 10, fg_style);
+  tau_put_filled_rectangle(ctx, 50, 10, 10, 10, fg_style);
+  tau_put_rectangle(ctx, 10, 10, 10, 10, fg_style);
 
   tau_put_char(ctx, 'O', 10, 10, text_style);
   tau_put_char(ctx, 'O', 11, 11, text_style);
@@ -49,9 +50,9 @@ int main(int argc, char *argv[]) {
   tau_put_str(ctx, text, strlen(text), 4, 4, text2_style);
 
   tau_put_char(ctx, 'X', 90, 30, text_style);
-  tau_put_circle(ctx, 90, 30, 4, fg_style);
+  tau_put_filled_circle(ctx, 90, 30, 4, fg_style);
   tau_put_char(ctx, 'X', 90, 10, text_style);
-  tau_put_circle(ctx, 90, 10, 9, fg_style);
+  tau_put_filled_circle(ctx, 90, 10, 9, fg_style);
   tau_draw_diff(ctx);
   sleep(5);
 
