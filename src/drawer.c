@@ -107,6 +107,19 @@ void tau_put_rectangle(tau_ctx *ctx, int x, int y, unsigned int width,
   }
 }
 
+static void plot_circle_8(tau_ctx *ctx, int cx, int cy, int x, int y, char c,
+                          tau_style style) {
+  tau_put_char(ctx, c, cx + x, cy + y, style);
+  tau_put_char(ctx, c, cx - x, cy + y, style);
+  tau_put_char(ctx, c, cx + x, cy - y, style);
+  tau_put_char(ctx, c, cx - x, cy - y, style);
+
+  tau_put_char(ctx, c, cx + y, cy + x, style);
+  tau_put_char(ctx, c, cx - y, cy + x, style);
+  tau_put_char(ctx, c, cx + y, cy - x, style);
+  tau_put_char(ctx, c, cx - y, cy - x, style);
+}
+
 void tau_put_filled_circle(tau_ctx *ctx, int c_x, int c_y, unsigned int radius,
                            tau_style style) {
   if (!ctx)
@@ -128,6 +141,32 @@ void tau_put_filled_circle(tau_ctx *ctx, int c_x, int c_y, unsigned int radius,
         ctx->back_buffer[coords].style = style;
       }
     }
+  }
+}
+
+void tau_put_circle(tau_ctx *ctx, int c_x, int c_y, unsigned int radius,
+                    tau_style style) {
+  if (!ctx)
+    return;
+
+  int x = 0;
+  int y = (int)radius;
+  int d = 1 - (int)radius;
+
+  plot_circle_8(ctx, c_x, c_y, x, y, 'C', style);
+
+  // process 1/8, then plot symmetric
+  while (x < y) {
+    x++;
+
+    if (d < 0) {
+      d += 2 * x + 1;
+    } else {
+      y--;
+      d += 2 * (x - y) + 1;
+    }
+
+    plot_circle_8(ctx, c_x, c_y, x, y, 'C', style);
   }
 }
 

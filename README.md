@@ -19,7 +19,9 @@ cmake --build build
 TODO: 
 [] Make debug prints somewhere else than main drawing area
 [] Resize screen adapt buffers
-[ ] Add more shapes and refactor reuse code
+[ ] Refactor reuse code in shapes (put_char)
+[ ] Improve circle with ellipse
+[ ] Fix fill circle (ugly)
 [ ] Mouse detection event
 [ ] Animation system
 
