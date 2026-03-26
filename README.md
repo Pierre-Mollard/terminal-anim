@@ -19,6 +19,7 @@ cmake --build build
 TODO: 
 [] Make debug prints somewhere else than main drawing area
 [] Resize screen adapt buffers
+[ ] Add filled triangle api implem
 [ ] Refactor reuse code in shapes (put_char)
 [ ] Improve circle with ellipse
 [ ] Fix fill circle (ugly)
