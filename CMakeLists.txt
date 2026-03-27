@@ -55,3 +55,7 @@ target_link_libraries(TestShapes PRIVATE TAlib)
 add_executable(TestLines)
 target_sources(TestLines PRIVATE tests/test_lines.c)
 target_link_libraries(TestLines PRIVATE TAlib)
+
+add_executable(TestShapesRound)
+target_sources(TestShapesRound PRIVATE tests/test_round_shapes.c)
+target_link_libraries(TestShapesRound PRIVATE TAlib)

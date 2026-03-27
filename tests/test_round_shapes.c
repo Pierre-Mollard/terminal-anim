@@ -1,0 +1,67 @@
+#include "terminal-anim.h"
+
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+
+int main(int argc, char *argv[]) {
+  printf("Hello world from test clear\n");
+  tau_ctx *ctx;
+  ctx = tau_create();
+  if (ctx == NULL) {
+    printf("Test ERROR! - ctx is NULL\n");
+    return 1;
+  }
+
+  tau_style bg_style = {0};
+  bg_style.fg.b = 255;
+  bg_style.fg.g = 255;
+  bg_style.has_fg = true;
+
+  tau_style fg_style = {0};
+  fg_style.fg.r = 255;
+  fg_style.has_fg = true;
+
+  tau_style text_style = {0};
+  text_style.fg.r = 255;
+  text_style.fg.g = 255;
+  text_style.fg.b = 100;
+  text_style.has_fg = true;
+
+  tau_style text2_style = text_style;
+  text2_style.attrs |= TAU_ATTR_BOLD;
+
+  tau_style text3_style = text_style;
+  text3_style.attrs = TAU_ATTR_ITALIC;
+
+  tau_fill(ctx, '.', bg_style);
+  tau_draw_full(ctx);
+
+  char *text = "round shape test";
+  tau_put_str(ctx, text, strlen(text), 4, 4, text2_style);
+
+  tau_put_char(ctx, 'X', 130, 30, text_style);
+  tau_put_filled_circle(ctx, 130, 30, 4, fg_style);
+  tau_put_char(ctx, 'X', 130, 10, text_style);
+  tau_put_filled_circle(ctx, 130, 10, 9, fg_style);
+
+  tau_put_char(ctx, '1', 15, 20, text2_style);
+  tau_put_ellipse(ctx, 15, 20, 6, 8, 'E', text_style);
+
+  tau_put_char(ctx, '2', 40, 20, text2_style);
+  tau_put_filled_ellipse(ctx, 40, 20, 7, 4, 'E', text_style);
+
+  tau_draw_diff(ctx);
+  sleep(5);
+
+  tau_destroy(ctx);
+  ctx = NULL;
+  if (ctx != NULL) {
+    printf("Test ERROR! - ctx is not NULL after destroy\n");
+    return 2;
+  }
+
+  printf("Test Finished!\n");
+  return 0;
+}

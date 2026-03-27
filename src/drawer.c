@@ -120,6 +120,20 @@ static void plot_circle_8(tau_ctx *ctx, int cx, int cy, int x, int y, char c,
   tau_put_char(ctx, c, cx - y, cy - x, style);
 }
 
+static void plot_ellipse_4(tau_ctx *ctx, int cx, int cy, int x, int y, char c,
+                           tau_style style) {
+  tau_put_char(ctx, c, cx + x, cy + y, style);
+  tau_put_char(ctx, c, cx - x, cy + y, style);
+  tau_put_char(ctx, c, cx + x, cy - y, style);
+  tau_put_char(ctx, c, cx - x, cy - y, style);
+}
+
+static void fill_ellipse_4(tau_ctx *ctx, int cx, int cy, int x, int y, char c,
+                           tau_style style) {
+  tau_put_hline(ctx, cy + y, cx - x, cx + x, style);
+  tau_put_hline(ctx, cy - y, cx - x, cx + x, style);
+}
+
 void tau_put_filled_circle(tau_ctx *ctx, int c_x, int c_y, unsigned int radius,
                            tau_style style) {
   if (!ctx)
@@ -140,6 +154,110 @@ void tau_put_filled_circle(tau_ctx *ctx, int c_x, int c_y, unsigned int radius,
         ctx->back_buffer[coords].symbol = 'H';
         ctx->back_buffer[coords].style = style;
       }
+    }
+  }
+}
+
+void tau_put_ellipse(tau_ctx *ctx, int cx, int cy, int rx, int ry, char c,
+                     tau_style style) {
+  if (!ctx || rx < 0 || ry < 0)
+    return;
+
+  long long rx2 = (long long)rx * rx;
+  long long ry2 = (long long)ry * ry;
+  long long two_rx2 = 2 * rx2;
+  long long two_ry2 = 2 * ry2;
+
+  long long x = 0;
+  long long y = ry;
+
+  long long px = 0;
+  long long py = two_rx2 * y;
+
+  long long p1 = ry2 - rx2 * ry + rx2 / 4;
+
+  while (px < py) {
+    plot_ellipse_4(ctx, cx, cy, (int)x, (int)y, c, style);
+
+    x++;
+    px += two_ry2;
+
+    if (p1 < 0) {
+      p1 += ry2 + px;
+    } else {
+      y--;
+      py -= two_rx2;
+      p1 += ry2 + px - py;
+    }
+  }
+
+  double p2 = (double)ry2 * (x + 0.5) * (x + 0.5) +
+              (double)rx2 * (y - 1) * (y - 1) - (double)rx2 * ry2;
+
+  while (y >= 0) {
+    plot_ellipse_4(ctx, cx, cy, (int)x, (int)y, c, style);
+
+    y--;
+    py -= two_rx2;
+
+    if (p2 > 0) {
+      p2 += rx2 - py;
+    } else {
+      x++;
+      px += two_ry2;
+      p2 += rx2 - py + px;
+    }
+  }
+}
+
+void tau_put_filled_ellipse(tau_ctx *ctx, int cx, int cy, int rx, int ry,
+                            char c, tau_style style) {
+  if (!ctx || rx < 0 || ry < 0)
+    return;
+
+  long long rx2 = (long long)rx * rx;
+  long long ry2 = (long long)ry * ry;
+  long long two_rx2 = 2 * rx2;
+  long long two_ry2 = 2 * ry2;
+
+  long long x = 0;
+  long long y = ry;
+
+  long long px = 0;
+  long long py = two_rx2 * y;
+
+  long long p1 = ry2 - rx2 * ry + rx2 / 4;
+
+  while (px < py) {
+    fill_ellipse_4(ctx, cx, cy, (int)x, (int)y, c, style);
+
+    x++;
+    px += two_ry2;
+
+    if (p1 < 0) {
+      p1 += ry2 + px;
+    } else {
+      y--;
+      py -= two_rx2;
+      p1 += ry2 + px - py;
+    }
+  }
+
+  double p2 = (double)ry2 * (x + 0.5) * (x + 0.5) +
+              (double)rx2 * (y - 1) * (y - 1) - (double)rx2 * ry2;
+
+  while (y >= 0) {
+    fill_ellipse_4(ctx, cx, cy, (int)x, (int)y, c, style);
+
+    y--;
+    py -= two_rx2;
+
+    if (p2 > 0) {
+      p2 += rx2 - py;
+    } else {
+      x++;
+      px += two_ry2;
+      p2 += rx2 - py + px;
     }
   }
 }

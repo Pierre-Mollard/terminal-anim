@@ -60,6 +60,10 @@ void tau_put_filled_circle(tau_ctx *ctx, int x, int y, unsigned int radius,
                            tau_style style);
 void tau_put_rectangle(tau_ctx *ctx, int x, int y, unsigned int width,
                        unsigned int height, tau_style style);
+void tau_put_ellipse(tau_ctx *ctx, int cx, int cy, int rx, int ry, char c,
+                     tau_style style);
+void tau_put_filled_ellipse(tau_ctx *ctx, int cx, int cy, int rx, int ry,
+                            char c, tau_style style);
 void tau_put_circle(tau_ctx *ctx, int x, int y, unsigned int radius,
                     tau_style style);
 void tau_put_str(tau_ctx *ctx, char *str, size_t size, int x, int y,
