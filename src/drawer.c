@@ -180,14 +180,92 @@ void tau_put_triangle(tau_ctx *ctx, int x0, int y0, int x1, int y1, int x2,
   tau_put_line_aspect(ctx, x1, y1, x2, y2, 'L', style);
 }
 
+static void fill_flat_bottom_triangle(tau_ctx *ctx, int x0, int y0, int x1,
+                                      int y1, int x2, int y2, tau_style style) {
+  double invslope1 = (double)(x1 - x0) / (double)(y1 - y0);
+  double invslope2 = (double)(x2 - x0) / (double)(y2 - y0);
+
+  double curx1 = x0;
+  double curx2 = x0;
+
+  for (int y = y0; y <= y1; y++) {
+    tau_put_hline(ctx, y, (int)curx1, (int)curx2, style);
+    curx1 += invslope1;
+    curx2 += invslope2;
+  }
+}
+
+static void fill_flat_top_triangle(tau_ctx *ctx, int x0, int y0, int x1, int y1,
+                                   int x2, int y2, tau_style style) {
+  double invslope1 = (double)(x2 - x0) / (double)(y2 - y0);
+  double invslope2 = (double)(x2 - x1) / (double)(y2 - y1);
+
+  double curx1 = x2;
+  double curx2 = x2;
+
+  for (int y = y2; y >= y0; y--) {
+    tau_put_hline(ctx, y, (int)curx1, (int)curx2, style);
+    curx1 -= invslope1;
+    curx2 -= invslope2;
+  }
+}
+
 void tau_put_filled_triangle(tau_ctx *ctx, int x0, int y0, int x1, int y1,
                              int x2, int y2, tau_style style) {
   if (!ctx)
     return;
 
-  tau_put_line_aspect(ctx, x0, y0, x1, y1, 'L', style);
-  tau_put_line_aspect(ctx, x0, y0, x2, y2, 'L', style);
-  tau_put_line_aspect(ctx, x1, y1, x2, y2, 'L', style);
+  // sorted coords by y
+  int sx0, sx1, sx2, sy0, sy1, sy2;
+  sx0 = x0;
+  sy0 = y0;
+  sx1 = x1;
+  sy1 = y1;
+  sx2 = x2;
+  sy2 = y2;
+
+  if (sy0 > sy1) {
+    int tmp = sy0;
+    sy0 = sy1;
+    sy1 = tmp;
+    tmp = sx0;
+    sx0 = sx1;
+    sx1 = tmp;
+  }
+  if (sy1 > sy2) {
+    int tmp = sy1;
+    sy1 = sy2;
+    sy2 = tmp;
+    tmp = sx1;
+    sx1 = sx2;
+    sx2 = tmp;
+  }
+
+  if (sy0 > sy1) {
+    int tmp = sy0;
+    sy0 = sy1;
+    sy1 = tmp;
+    tmp = sx0;
+    sx0 = sx1;
+    sx1 = tmp;
+  }
+
+  tau_put_char(ctx, '0', sx0, sy0, style);
+  tau_put_char(ctx, '1', sx1, sy1, style);
+  tau_put_char(ctx, '2', sx2, sy2, style);
+
+  if (sy1 == sy2) {
+    fill_flat_bottom_triangle(ctx, sx0, sy0, sx1, sy1, sx2, sy2, style);
+  } else if (sy0 == sy1) {
+    fill_flat_top_triangle(ctx, sx0, sy0, sx1, sy1, sx2, sy2, style);
+  } else {
+    int sx3 =
+        sx0 + (int)((double)(sy1 - sy0) / (double)(sy2 - sy0) * (sx2 - sx0));
+    int sy3 = sy1;
+
+    fill_flat_bottom_triangle(ctx, sx0, sy0, sx1, sy1, sx3, sy3, style);
+    fill_flat_top_triangle(ctx, sx1, sy1, sx3, sy3, sx2, sy2, style);
+  }
 }
 
 void tau_put_str(tau_ctx *ctx, char *str, size_t size, int x, int y,
