@@ -66,6 +66,8 @@ void tau_put_str(tau_ctx *ctx, char *str, size_t size, int x, int y,
                  tau_style style);
 void tau_put_line(tau_ctx *ctx, int x1, int y1, int x2, int y2,
                   tau_style style);
+void tau_put_vline(tau_ctx *ctx, int x, int y0, int y1, tau_style style);
+void tau_put_hline(tau_ctx *ctx, int y, int x0, int x1, tau_style style);
 void tau_put_line_aspect(tau_ctx *ctx, int x0, int y0, int x1, int y1, char c,
                          tau_style style);
 void tau_put_filled_triangle(tau_ctx *ctx, int x0, int y0, int x1, int y1,

@@ -10,6 +10,7 @@ tau_style bg_style = {0};
 tau_style fg_style = {0};
 tau_style fg_light_style = {0};
 tau_style text_style = {0};
+tau_style hv_lines_style = {0};
 
 void test_line(int x1, int y1, int x2, int y2) {
   if (ctx == NULL) {
@@ -34,6 +35,7 @@ int main(int argc, char *argv[]) {
 
   bg_style.fg.b = 255;
   bg_style.fg.g = 255;
+  bg_style.fg.r = 255;
   bg_style.has_fg = true;
 
   fg_style.fg.r = 255;
@@ -46,6 +48,11 @@ int main(int argc, char *argv[]) {
   text_style.fg.g = 255;
   text_style.fg.b = 100;
   text_style.has_fg = true;
+
+  hv_lines_style.fg.r = 200;
+  hv_lines_style.fg.b = 70;
+  hv_lines_style.fg.g = 70;
+  hv_lines_style.has_fg = true;
 
   tau_fill(ctx, '.', bg_style);
   tau_draw_full(ctx);
@@ -61,6 +68,15 @@ int main(int argc, char *argv[]) {
   test_line(x1, y1, x2, y2);
   test_line(x1, y1 * 3, x2, y2 * 3);
   test_line(30, y1 * 3, 2, y2 * 3);
+
+  char *texthv = "line test hv optimized";
+  tau_put_str(ctx, text, strlen(text), 60, 1, text_style);
+  tau_put_hline(ctx, 3, 62, 70, hv_lines_style);
+  tau_put_hline(ctx, 10, 100, 80, hv_lines_style);
+  tau_put_hline(ctx, 20, 70, 205, hv_lines_style);
+  tau_put_vline(ctx, 81, 5, 15, hv_lines_style);
+  tau_put_vline(ctx, 70, 25, 10, hv_lines_style);
+  tau_put_vline(ctx, 90, 20, 85, hv_lines_style);
 
   tau_draw_diff(ctx);
   sleep(5);

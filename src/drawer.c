@@ -448,6 +448,57 @@ void tau_put_line(tau_ctx *ctx, int x0, int y0, int x1, int y1,
     }
   }
 }
+void tau_put_vline(tau_ctx *ctx, int x, int y0, int y1, tau_style style) {
+  if (!ctx)
+    return;
+
+  if (x < 0 || x >= (int)ctx->nb_cols)
+    return;
+
+  if (y0 > y1) {
+    int temp = y0;
+    y0 = y1;
+    y1 = temp;
+  }
+
+  if (y0 < 0)
+    y0 = 0;
+
+  if (y1 >= (int)ctx->nb_rows)
+    y1 = (int)ctx->nb_rows - 1;
+
+  for (int i = y0; i <= y1; i++) {
+    size_t j = i * ctx->nb_cols + x;
+    ctx->back_buffer[j].symbol = '|';
+    ctx->back_buffer[j].style = style;
+  }
+}
+
+void tau_put_hline(tau_ctx *ctx, int y, int x0, int x1, tau_style style) {
+  if (!ctx)
+    return;
+
+  if (y < 0 || y >= (int)ctx->nb_rows)
+    return;
+
+  if (x0 > x1) {
+    int temp = x0;
+    x0 = x1;
+    x1 = temp;
+  }
+
+  if (x0 < 0)
+    x0 = 0;
+
+  if (x1 >= (int)ctx->nb_cols)
+    x1 = (int)ctx->nb_cols - 1;
+
+  for (int i = x0; i <= x1; i++) {
+    size_t j = y * ctx->nb_cols + i;
+    ctx->back_buffer[j].symbol = '-';
+    ctx->back_buffer[j].style = style;
+  }
+}
 
 void tau_put_line_aspect(tau_ctx *ctx, int x0, int y0, int x1, int y1, char c,
                          tau_style style) {
