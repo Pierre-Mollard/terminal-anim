@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
   tau_put_str(ctx, text, strlen(text), 4, 4, text2_style);
 
   tau_put_char(ctx, 'X', 90, 30, text_style);
-  tau_put_filled_circle(ctx, 90, 30, 4, fg_style);
+  tau_put_circle(ctx, 90, 30, 4, fg_style);
   tau_put_char(ctx, 'X', 90, 10, text_style);
   tau_put_filled_circle(ctx, 90, 10, 9, fg_style);
 

@@ -20,8 +20,8 @@ TODO:
 [] Make debug prints somewhere else than main drawing area
 [] Resize screen adapt buffers
 [] Add filled triangle api implem
-[ ] Improve circle with ellipse
-[ ] Fix fill circle (ugly)
+[] Improve circle with ellipse
+[] Fix fill circle (ugly)
 [ ] Refactor reuse code in shapes (put_char)
 [ ] Mouse detection event
 [ ] Animation system
