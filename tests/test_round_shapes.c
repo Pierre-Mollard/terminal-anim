@@ -42,9 +42,9 @@ int main(int argc, char *argv[]) {
   tau_put_str(ctx, text, strlen(text), 4, 4, text2_style);
 
   tau_put_char(ctx, 'X', 130, 30, text_style);
-  tau_put_circle(ctx, 130, 30, 4, fg_style);
+  tau_put_circle(ctx, 130, 30, 4, 'C', fg_style);
   tau_put_char(ctx, 'X', 130, 10, text_style);
-  tau_put_filled_circle(ctx, 130, 10, 9, fg_style);
+  tau_put_filled_circle(ctx, 130, 10, 9, 'C', fg_style);
 
   tau_put_char(ctx, '1', 15, 20, text2_style);
   tau_put_ellipse(ctx, 15, 20, 6, 8, 'E', text_style);

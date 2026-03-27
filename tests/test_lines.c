@@ -19,7 +19,7 @@ void test_line(int x1, int y1, int x2, int y2) {
     return;
   }
 
-  tau_put_line(ctx, x1, y1, x2, y2, fg_light_style);
+  tau_put_line(ctx, x1, y1, x2, y2, '#', fg_light_style);
   tau_put_line_aspect(ctx, x1, y1, x2, y2, '#', fg_style);
   tau_put_char(ctx, 'O', x1, y1, text_style);
   tau_put_char(ctx, 'O', x2, y2, text_style);
@@ -71,12 +71,12 @@ int main(int argc, char *argv[]) {
 
   char *texthv = "line test hv optimized";
   tau_put_str(ctx, text, strlen(text), 60, 1, text_style);
-  tau_put_hline(ctx, 3, 62, 70, hv_lines_style);
-  tau_put_hline(ctx, 10, 100, 80, hv_lines_style);
-  tau_put_hline(ctx, 20, 70, 205, hv_lines_style);
-  tau_put_vline(ctx, 81, 5, 15, hv_lines_style);
-  tau_put_vline(ctx, 70, 25, 10, hv_lines_style);
-  tau_put_vline(ctx, 90, 20, 85, hv_lines_style);
+  tau_put_hline(ctx, 3, 62, 70, '-', hv_lines_style);
+  tau_put_hline(ctx, 10, 100, 80, '-', hv_lines_style);
+  tau_put_hline(ctx, 20, 70, 205, '-', hv_lines_style);
+  tau_put_vline(ctx, 81, 5, 15, '|', hv_lines_style);
+  tau_put_vline(ctx, 70, 25, 10, '|', hv_lines_style);
+  tau_put_vline(ctx, 90, 20, 85, '|', hv_lines_style);
 
   tau_draw_diff(ctx);
   sleep(5);

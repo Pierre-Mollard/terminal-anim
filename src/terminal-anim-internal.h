@@ -7,6 +7,7 @@
 #include <termios.h>
 
 #define BYTES_PER_PIXEL 32
+#define TERM_ASPECT_RATIO 2.0
 
 struct tau_cell {
   uint32_t symbol;

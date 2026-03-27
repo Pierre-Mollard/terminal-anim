@@ -6,6 +6,7 @@
 #include "platform.h"
 #include <math.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -24,7 +25,7 @@ void tau_clear(tau_ctx *ctx) {
   }
 }
 
-void tau_put_char(tau_ctx *ctx, char c, int x, int y, tau_style style) {
+void tau_put_char(tau_ctx *ctx, uint32_t c, int x, int y, tau_style style) {
   if (!ctx)
     return;
   if (x < 0 || y < 0)
@@ -38,7 +39,8 @@ void tau_put_char(tau_ctx *ctx, char c, int x, int y, tau_style style) {
 }
 
 void tau_put_filled_rectangle(tau_ctx *ctx, int x, int y, unsigned int width,
-                              unsigned int height, tau_style style) {
+                              unsigned int height, uint32_t symbol,
+                              tau_style style) {
 
   unsigned int screen_width, screen_height;
   pf_get_size(&screen_height, &screen_width);
@@ -65,14 +67,14 @@ void tau_put_filled_rectangle(tau_ctx *ctx, int x, int y, unsigned int width,
   for (int i = start_x; i < end_x; i++) {
     for (int j = start_y; j < end_y; j++) {
       int coords = j * ctx->nb_cols + i;
-      ctx->back_buffer[coords].symbol = 'H';
+      ctx->back_buffer[coords].symbol = symbol;
       ctx->back_buffer[coords].style = style;
     }
   }
 }
 
 void tau_put_rectangle(tau_ctx *ctx, int x, int y, unsigned int width,
-                       unsigned int height, tau_style style) {
+                       unsigned int height, uint32_t symbol, tau_style style) {
 
   unsigned int screen_width, screen_height;
   pf_get_size(&screen_height, &screen_width);
@@ -100,28 +102,28 @@ void tau_put_rectangle(tau_ctx *ctx, int x, int y, unsigned int width,
     for (int j = start_y; j < end_y; j++) {
       int coords = j * ctx->nb_cols + i;
       if (i == start_x || i == end_x - 1 || j == start_y || j == end_y - 1) {
-        ctx->back_buffer[coords].symbol = 'H';
+        ctx->back_buffer[coords].symbol = symbol;
         ctx->back_buffer[coords].style = style;
       }
     }
   }
 }
 
-static void plot_ellipse_4(tau_ctx *ctx, int cx, int cy, int x, int y, char c,
-                           tau_style style) {
-  tau_put_char(ctx, c, cx + x, cy + y, style);
-  tau_put_char(ctx, c, cx - x, cy + y, style);
-  tau_put_char(ctx, c, cx + x, cy - y, style);
-  tau_put_char(ctx, c, cx - x, cy - y, style);
+static void plot_ellipse_4(tau_ctx *ctx, int cx, int cy, int x, int y,
+                           uint32_t symbol, tau_style style) {
+  tau_put_char(ctx, symbol, cx + x, cy + y, style);
+  tau_put_char(ctx, symbol, cx - x, cy + y, style);
+  tau_put_char(ctx, symbol, cx + x, cy - y, style);
+  tau_put_char(ctx, symbol, cx - x, cy - y, style);
 }
 
-static void fill_ellipse_4(tau_ctx *ctx, int cx, int cy, int x, int y, char c,
-                           tau_style style) {
-  tau_put_hline(ctx, cy + y, cx - x, cx + x, style);
-  tau_put_hline(ctx, cy - y, cx - x, cx + x, style);
+static void fill_ellipse_4(tau_ctx *ctx, int cx, int cy, int x, int y,
+                           uint32_t symbol, tau_style style) {
+  tau_put_hline(ctx, cy + y, cx - x, cx + x, symbol, style);
+  tau_put_hline(ctx, cy - y, cx - x, cx + x, symbol, style);
 }
 
-void tau_put_ellipse(tau_ctx *ctx, int cx, int cy, int rx, int ry, char c,
+void tau_put_ellipse(tau_ctx *ctx, int cx, int cy, int rx, int ry, char symbol,
                      tau_style style) {
   if (!ctx || rx < 0 || ry < 0)
     return;
@@ -140,7 +142,7 @@ void tau_put_ellipse(tau_ctx *ctx, int cx, int cy, int rx, int ry, char c,
   long long p1 = ry2 - rx2 * ry + rx2 / 4;
 
   while (px < py) {
-    plot_ellipse_4(ctx, cx, cy, (int)x, (int)y, c, style);
+    plot_ellipse_4(ctx, cx, cy, (int)x, (int)y, symbol, style);
 
     x++;
     px += two_ry2;
@@ -158,7 +160,7 @@ void tau_put_ellipse(tau_ctx *ctx, int cx, int cy, int rx, int ry, char c,
               (double)rx2 * (y - 1) * (y - 1) - (double)rx2 * ry2;
 
   while (y >= 0) {
-    plot_ellipse_4(ctx, cx, cy, (int)x, (int)y, c, style);
+    plot_ellipse_4(ctx, cx, cy, (int)x, (int)y, symbol, style);
 
     y--;
     py -= two_rx2;
@@ -174,7 +176,7 @@ void tau_put_ellipse(tau_ctx *ctx, int cx, int cy, int rx, int ry, char c,
 }
 
 void tau_put_filled_ellipse(tau_ctx *ctx, int cx, int cy, int rx, int ry,
-                            char c, tau_style style) {
+                            char symbol, tau_style style) {
   if (!ctx || rx < 0 || ry < 0)
     return;
 
@@ -192,7 +194,7 @@ void tau_put_filled_ellipse(tau_ctx *ctx, int cx, int cy, int rx, int ry,
   long long p1 = ry2 - rx2 * ry + rx2 / 4;
 
   while (px < py) {
-    fill_ellipse_4(ctx, cx, cy, (int)x, (int)y, c, style);
+    fill_ellipse_4(ctx, cx, cy, (int)x, (int)y, symbol, style);
 
     x++;
     px += two_ry2;
@@ -210,7 +212,7 @@ void tau_put_filled_ellipse(tau_ctx *ctx, int cx, int cy, int rx, int ry,
               (double)rx2 * (y - 1) * (y - 1) - (double)rx2 * ry2;
 
   while (y >= 0) {
-    fill_ellipse_4(ctx, cx, cy, (int)x, (int)y, c, style);
+    fill_ellipse_4(ctx, cx, cy, (int)x, (int)y, symbol, style);
 
     y--;
     py -= two_rx2;
@@ -226,23 +228,24 @@ void tau_put_filled_ellipse(tau_ctx *ctx, int cx, int cy, int rx, int ry,
 }
 
 void tau_put_circle(tau_ctx *ctx, int c_x, int c_y, unsigned int radius,
-                    tau_style style) {
+                    uint32_t symbol, tau_style style) {
   if (!ctx)
     return;
 
-  tau_put_ellipse(ctx, c_x, c_y, 2 * radius, radius, 'C', style);
+  tau_put_ellipse(ctx, c_x, c_y, 2 * radius, radius, symbol, style);
 }
 
 void tau_put_filled_circle(tau_ctx *ctx, int c_x, int c_y, unsigned int radius,
-                           tau_style style) {
+                           uint32_t symbol, tau_style style) {
   if (!ctx)
     return;
 
-  tau_put_filled_ellipse(ctx, c_x, c_y, 2 * radius, radius, 'C', style);
+  tau_put_filled_ellipse(ctx, c_x, c_y, (int)((TERM_ASPECT_RATIO)*radius),
+                         radius, symbol, style);
 }
 
 void tau_put_triangle(tau_ctx *ctx, int x0, int y0, int x1, int y1, int x2,
-                      int y2, tau_style style) {
+                      int y2, u_int32_t symbol, tau_style style) {
   if (!ctx)
     return;
 
@@ -252,7 +255,8 @@ void tau_put_triangle(tau_ctx *ctx, int x0, int y0, int x1, int y1, int x2,
 }
 
 static void fill_flat_bottom_triangle(tau_ctx *ctx, int x0, int y0, int x1,
-                                      int y1, int x2, int y2, tau_style style) {
+                                      int y1, int x2, int y2, uint32_t symbol,
+                                      tau_style style) {
   double invslope1 = (double)(x1 - x0) / (double)(y1 - y0);
   double invslope2 = (double)(x2 - x0) / (double)(y2 - y0);
 
@@ -260,14 +264,15 @@ static void fill_flat_bottom_triangle(tau_ctx *ctx, int x0, int y0, int x1,
   double curx2 = x0;
 
   for (int y = y0; y <= y1; y++) {
-    tau_put_hline(ctx, y, (int)curx1, (int)curx2, style);
+    tau_put_hline(ctx, y, (int)curx1, (int)curx2, symbol, style);
     curx1 += invslope1;
     curx2 += invslope2;
   }
 }
 
 static void fill_flat_top_triangle(tau_ctx *ctx, int x0, int y0, int x1, int y1,
-                                   int x2, int y2, tau_style style) {
+                                   int x2, int y2, uint32_t symbol,
+                                   tau_style style) {
   double invslope1 = (double)(x2 - x0) / (double)(y2 - y0);
   double invslope2 = (double)(x2 - x1) / (double)(y2 - y1);
 
@@ -275,14 +280,15 @@ static void fill_flat_top_triangle(tau_ctx *ctx, int x0, int y0, int x1, int y1,
   double curx2 = x2;
 
   for (int y = y2; y >= y0; y--) {
-    tau_put_hline(ctx, y, (int)curx1, (int)curx2, style);
+    tau_put_hline(ctx, y, (int)curx1, (int)curx2, symbol, style);
     curx1 -= invslope1;
     curx2 -= invslope2;
   }
 }
 
 void tau_put_filled_triangle(tau_ctx *ctx, int x0, int y0, int x1, int y1,
-                             int x2, int y2, tau_style style) {
+                             int x2, int y2, u_int32_t symbol,
+                             tau_style style) {
   if (!ctx)
     return;
 
@@ -321,21 +327,17 @@ void tau_put_filled_triangle(tau_ctx *ctx, int x0, int y0, int x1, int y1,
     sx1 = tmp;
   }
 
-  tau_put_char(ctx, '0', sx0, sy0, style);
-  tau_put_char(ctx, '1', sx1, sy1, style);
-  tau_put_char(ctx, '2', sx2, sy2, style);
-
   if (sy1 == sy2) {
-    fill_flat_bottom_triangle(ctx, sx0, sy0, sx1, sy1, sx2, sy2, style);
+    fill_flat_bottom_triangle(ctx, sx0, sy0, sx1, sy1, sx2, sy2, symbol, style);
   } else if (sy0 == sy1) {
-    fill_flat_top_triangle(ctx, sx0, sy0, sx1, sy1, sx2, sy2, style);
+    fill_flat_top_triangle(ctx, sx0, sy0, sx1, sy1, sx2, sy2, symbol, style);
   } else {
     int sx3 =
         sx0 + (int)((double)(sy1 - sy0) / (double)(sy2 - sy0) * (sx2 - sx0));
     int sy3 = sy1;
 
-    fill_flat_bottom_triangle(ctx, sx0, sy0, sx1, sy1, sx3, sy3, style);
-    fill_flat_top_triangle(ctx, sx1, sy1, sx3, sy3, sx2, sy2, style);
+    fill_flat_bottom_triangle(ctx, sx0, sy0, sx1, sy1, sx3, sy3, symbol, style);
+    fill_flat_top_triangle(ctx, sx1, sy1, sx3, sy3, sx2, sy2, symbol, style);
   }
 }
 
@@ -568,7 +570,7 @@ void tau_draw_diff(tau_ctx *ctx) {
   }
 }
 
-void tau_put_line(tau_ctx *ctx, int x0, int y0, int x1, int y1,
+void tau_put_line(tau_ctx *ctx, int x0, int y0, int x1, int y1, uint32_t symbol,
                   tau_style style) {
   if (!ctx)
     return;
@@ -580,7 +582,7 @@ void tau_put_line(tau_ctx *ctx, int x0, int y0, int x1, int y1,
   int err = dx + dy;
 
   while (1) {
-    tau_put_char(ctx, 'L', x0, y0, style);
+    tau_put_char(ctx, symbol, x0, y0, style);
 
     if (x0 == x1 && y0 == y1)
       break;
@@ -597,7 +599,8 @@ void tau_put_line(tau_ctx *ctx, int x0, int y0, int x1, int y1,
     }
   }
 }
-void tau_put_vline(tau_ctx *ctx, int x, int y0, int y1, tau_style style) {
+void tau_put_vline(tau_ctx *ctx, int x, int y0, int y1, uint32_t symbol,
+                   tau_style style) {
   if (!ctx)
     return;
 
@@ -618,12 +621,13 @@ void tau_put_vline(tau_ctx *ctx, int x, int y0, int y1, tau_style style) {
 
   for (int i = y0; i <= y1; i++) {
     size_t j = i * ctx->nb_cols + x;
-    ctx->back_buffer[j].symbol = '|';
+    ctx->back_buffer[j].symbol = symbol;
     ctx->back_buffer[j].style = style;
   }
 }
 
-void tau_put_hline(tau_ctx *ctx, int y, int x0, int x1, tau_style style) {
+void tau_put_hline(tau_ctx *ctx, int y, int x0, int x1, uint32_t symbol,
+                   tau_style style) {
   if (!ctx)
     return;
 
@@ -644,13 +648,13 @@ void tau_put_hline(tau_ctx *ctx, int y, int x0, int x1, tau_style style) {
 
   for (int i = x0; i <= x1; i++) {
     size_t j = y * ctx->nb_cols + i;
-    ctx->back_buffer[j].symbol = '-';
+    ctx->back_buffer[j].symbol = symbol;
     ctx->back_buffer[j].style = style;
   }
 }
 
-void tau_put_line_aspect(tau_ctx *ctx, int x0, int y0, int x1, int y1, char c,
-                         tau_style style) {
+void tau_put_line_aspect(tau_ctx *ctx, int x0, int y0, int x1, int y1,
+                         uint32_t symbol, tau_style style) {
   double aspect = 2.0; // cell height / cell width
 
   double px0 = x0;
@@ -663,7 +667,7 @@ void tau_put_line_aspect(tau_ctx *ctx, int x0, int y0, int x1, int y1, char c,
 
   int steps = (int)(fabs(dx) > fabs(dy) ? fabs(dx) : fabs(dy));
   if (steps == 0) {
-    tau_put_char(ctx, c, x0, y0, style);
+    tau_put_char(ctx, symbol, x0, y0, style);
     return;
   }
 
@@ -676,6 +680,6 @@ void tau_put_line_aspect(tau_ctx *ctx, int x0, int y0, int x1, int y1, char c,
     int gx = (int)lround(px);
     int gy = (int)lround(py / aspect);
 
-    tau_put_char(ctx, c, gx, gy, style);
+    tau_put_char(ctx, symbol, gx, gy, style);
   }
 }

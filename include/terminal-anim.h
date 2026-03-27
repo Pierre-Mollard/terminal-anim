@@ -49,35 +49,45 @@ typedef struct tau_style {
 tau_ctx *tau_create();
 void tau_destroy(tau_ctx *ctx);
 void tau_resize_buffers(tau_ctx *ctx, unsigned int rows, unsigned int cols);
+
 void tau_fill(tau_ctx *ctx, uint32_t symbol, tau_style style);
 void tau_draw_full(tau_ctx *ctx);
 void tau_draw_diff(tau_ctx *ctx);
 void tau_clear(tau_ctx *ctx);
-void tau_put_char(tau_ctx *ctx, char c, int x, int y, tau_style style);
-void tau_put_rectangle(tau_ctx *ctx, int x, int y, unsigned int width,
-                       unsigned int height, tau_style style);
-void tau_put_filled_rectangle(tau_ctx *ctx, int x, int y, unsigned int width,
-                              unsigned int height, tau_style style);
-void tau_put_ellipse(tau_ctx *ctx, int cx, int cy, int rx, int ry, char c,
-                     tau_style style);
-void tau_put_filled_ellipse(tau_ctx *ctx, int cx, int cy, int rx, int ry,
-                            char c, tau_style style);
-void tau_put_circle(tau_ctx *ctx, int x, int y, unsigned int radius,
-                    tau_style style);
-void tau_put_filled_circle(tau_ctx *ctx, int x, int y, unsigned int radius,
-                           tau_style style);
+
+void tau_put_char(tau_ctx *ctx, uint32_t c, int x, int y, tau_style style);
 void tau_put_str(tau_ctx *ctx, char *str, size_t size, int x, int y,
                  tau_style style);
-void tau_put_line(tau_ctx *ctx, int x1, int y1, int x2, int y2,
+
+void tau_put_line(tau_ctx *ctx, int x1, int y1, int x2, int y2, uint32_t symbol,
                   tau_style style);
-void tau_put_vline(tau_ctx *ctx, int x, int y0, int y1, tau_style style);
-void tau_put_hline(tau_ctx *ctx, int y, int x0, int x1, tau_style style);
-void tau_put_line_aspect(tau_ctx *ctx, int x0, int y0, int x1, int y1, char c,
-                         tau_style style);
+void tau_put_vline(tau_ctx *ctx, int x, int y0, int y1, uint32_t symbol,
+                   tau_style style);
+void tau_put_hline(tau_ctx *ctx, int y, int x0, int x1, uint32_t symbol,
+                   tau_style style);
+void tau_put_line_aspect(tau_ctx *ctx, int x0, int y0, int x1, int y1,
+                         uint32_t symbol, tau_style style);
+
+void tau_put_rectangle(tau_ctx *ctx, int x, int y, unsigned int width,
+                       unsigned int height, uint32_t symbol, tau_style style);
+void tau_put_filled_rectangle(tau_ctx *ctx, int x, int y, unsigned int width,
+                              unsigned int height, uint32_t symbol,
+                              tau_style style);
+
+void tau_put_ellipse(tau_ctx *ctx, int cx, int cy, int rx, int ry, char symbol,
+                     tau_style style);
+void tau_put_filled_ellipse(tau_ctx *ctx, int cx, int cy, int rx, int ry,
+                            char symbol, tau_style style);
+
+void tau_put_circle(tau_ctx *ctx, int x, int y, unsigned int radius,
+                    uint32_t symbol, tau_style style);
+void tau_put_filled_circle(tau_ctx *ctx, int x, int y, unsigned int radius,
+                           uint32_t symbol, tau_style style);
+
 void tau_put_filled_triangle(tau_ctx *ctx, int x0, int y0, int x1, int y1,
-                             int x2, int y2, tau_style style);
+                             int x2, int y2, uint32_t symbol, tau_style style);
 void tau_put_triangle(tau_ctx *ctx, int x0, int y0, int x1, int y1, int x2,
-                      int y2, tau_style style);
+                      int y2, uint32_t symbol, tau_style style);
 
 extern volatile sig_atomic_t tau_g_is_running;
 
