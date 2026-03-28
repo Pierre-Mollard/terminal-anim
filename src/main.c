@@ -11,10 +11,11 @@
 #include <unistd.h>
 
 // variables for this file
-volatile int user_x = 0;
-volatile int user_y = 0;
+volatile int user_x = 1;
+volatile int user_y = 1;
 static unsigned int screen_max_rows, screen_max_cols = 0;
 static char input_display = ' ';
+static tau_style rainbow = {0};
 
 void handle_user_input(char c) {
   if (c == 'j' && user_y < screen_max_rows)
@@ -66,6 +67,22 @@ void draw_screen(tau_ctx *ctx) {
   white.fg.b = 255;
   white.has_fg = true;
 
+  if (rainbow.fg.r < 255) {
+    rainbow.fg.r++;
+  } else {
+    if (rainbow.fg.g < 255) {
+      rainbow.fg.g++;
+    } else {
+      if (rainbow.fg.b < 255) {
+        rainbow.fg.b++;
+      } else {
+        rainbow.fg.r = 0;
+        rainbow.fg.g = 0;
+        rainbow.fg.b = 0;
+      }
+    }
+  }
+
   unsigned int nb_rows, nb_cols = 0;
   tau_get_terminal_info(ctx, &nb_rows, &nb_cols);
 
@@ -94,7 +111,7 @@ void draw_screen(tau_ctx *ctx) {
 
   tau_put_filled_rectangle(ctx, 10, 20, 5, 5, 'R', green);
   tau_put_filled_rectangle(ctx, nb_cols - 51, nb_rows - 8, 50, 7, 'R', blue);
-  tau_put_filled_rectangle(ctx, user_x, user_y, 5, 5, 'R', gray);
+  tau_put_filled_rectangle(ctx, user_x, user_y, 5, 5, '#', rainbow);
 
   tau_draw_diff(ctx);
 }
@@ -112,6 +129,11 @@ int main(int argc, char *argv[]) {
   poll_fd[0].fd = STDIN_FILENO;
   poll_fd[0].events = POLLIN;
   poll_fd[0].revents = 0;
+
+  rainbow.has_fg = true;
+  rainbow.fg.r = 0;
+  rainbow.fg.g = 0;
+  rainbow.fg.b = 0;
 
   scene_init();
 
