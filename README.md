@@ -22,7 +22,7 @@ TODO:
 [] Add filled triangle api implem
 [] Improve circle with ellipse
 [] Fix fill circle (ugly)
-[ ] Refactor reuse code in shapes (put_char)
+[] Refactor reuse code in shapes (put_char)
 [ ] Mouse detection event
 [ ] Animation system
 

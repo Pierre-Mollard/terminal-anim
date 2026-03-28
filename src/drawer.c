@@ -25,7 +25,8 @@ void tau_clear(tau_ctx *ctx) {
   }
 }
 
-void tau_put_char(tau_ctx *ctx, uint32_t c, int x, int y, tau_style style) {
+void tau_put_char(tau_ctx *ctx, uint32_t symbol, int x, int y,
+                  tau_style style) {
   if (!ctx)
     return;
   if (x < 0 || y < 0)
@@ -34,7 +35,7 @@ void tau_put_char(tau_ctx *ctx, uint32_t c, int x, int y, tau_style style) {
     return;
 
   size_t pos = (size_t)y * ctx->nb_cols + (size_t)x;
-  ctx->back_buffer[pos].symbol = c;
+  ctx->back_buffer[pos].symbol = symbol;
   ctx->back_buffer[pos].style = style;
 }
 
@@ -66,9 +67,7 @@ void tau_put_filled_rectangle(tau_ctx *ctx, int x, int y, unsigned int width,
 
   for (int i = start_x; i < end_x; i++) {
     for (int j = start_y; j < end_y; j++) {
-      int coords = j * ctx->nb_cols + i;
-      ctx->back_buffer[coords].symbol = symbol;
-      ctx->back_buffer[coords].style = style;
+      tau_put_char(ctx, symbol, i, j, style);
     }
   }
 }
@@ -100,10 +99,8 @@ void tau_put_rectangle(tau_ctx *ctx, int x, int y, unsigned int width,
 
   for (int i = start_x; i < end_x; i++) {
     for (int j = start_y; j < end_y; j++) {
-      int coords = j * ctx->nb_cols + i;
       if (i == start_x || i == end_x - 1 || j == start_y || j == end_y - 1) {
-        ctx->back_buffer[coords].symbol = symbol;
-        ctx->back_buffer[coords].style = style;
+        tau_put_char(ctx, symbol, i, j, style);
       }
     }
   }
@@ -620,9 +617,7 @@ void tau_put_vline(tau_ctx *ctx, int x, int y0, int y1, uint32_t symbol,
     y1 = (int)ctx->nb_rows - 1;
 
   for (int i = y0; i <= y1; i++) {
-    size_t j = i * ctx->nb_cols + x;
-    ctx->back_buffer[j].symbol = symbol;
-    ctx->back_buffer[j].style = style;
+    tau_put_char(ctx, symbol, x, i, style);
   }
 }
 
@@ -647,9 +642,7 @@ void tau_put_hline(tau_ctx *ctx, int y, int x0, int x1, uint32_t symbol,
     x1 = (int)ctx->nb_cols - 1;
 
   for (int i = x0; i <= x1; i++) {
-    size_t j = y * ctx->nb_cols + i;
-    ctx->back_buffer[j].symbol = symbol;
-    ctx->back_buffer[j].style = style;
+    tau_put_char(ctx, symbol, i, y, style);
   }
 }
 
