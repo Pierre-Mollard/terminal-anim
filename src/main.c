@@ -1,3 +1,4 @@
+#include "box-drawing-chars.h"
 #include "platform.h"
 #include "scene.h"
 #include "terminal-anim.h"
@@ -86,10 +87,11 @@ void draw_screen(tau_ctx *ctx) {
   unsigned int nb_rows, nb_cols = 0;
   tau_get_terminal_info(ctx, &nb_rows, &nb_cols);
 
-  tau_put_hline(ctx, 0, 0, nb_cols - 1, '-', gray);
-  tau_put_hline(ctx, nb_rows - 1, 0, nb_cols - 1, '-', gray);
-  tau_put_vline(ctx, 0, 0, nb_rows - 1, '|', gray);
-  tau_put_vline(ctx, nb_cols - 1, 0, nb_rows - 1, '|', gray);
+  tau_put_hline(ctx, 0, 0, nb_cols - 1, TAU_BD_HEAVY_HORIZONTAL, gray);
+  tau_put_hline(ctx, nb_rows - 1, 0, nb_cols - 1, TAU_BD_HEAVY_HORIZONTAL,
+                gray);
+  tau_put_vline(ctx, 0, 0, nb_rows - 1, TAU_BD_HEAVY_VERTICAL, gray);
+  tau_put_vline(ctx, nb_cols - 1, 0, nb_rows - 1, TAU_BD_HEAVY_VERTICAL, gray);
 
   char buffer[256];
   snprintf(buffer, 256, "ROWS: %d, COLS: %d", nb_rows, nb_cols);
