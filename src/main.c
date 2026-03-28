@@ -93,6 +93,11 @@ void draw_screen(tau_ctx *ctx) {
   tau_put_vline(ctx, 0, 0, nb_rows - 1, TAU_BD_HEAVY_VERTICAL, gray);
   tau_put_vline(ctx, nb_cols - 1, 0, nb_rows - 1, TAU_BD_HEAVY_VERTICAL, gray);
 
+  tau_put_char(ctx, TAU_BD_HEAVY_DOWN_AND_RIGHT, 0, 0, gray);
+  tau_put_char(ctx, TAU_BD_HEAVY_DOWN_AND_LEFT, nb_cols - 1, 0, gray);
+  tau_put_char(ctx, TAU_BD_HEAVY_UP_AND_RIGHT, 0, nb_rows - 1, gray);
+  tau_put_char(ctx, TAU_BD_HEAVY_UP_AND_LEFT, nb_cols - 1, nb_rows - 1, gray);
+
   char buffer[256];
   snprintf(buffer, 256, "ROWS: %d, COLS: %d", nb_rows, nb_cols);
   tau_put_str(ctx, buffer, strlen(buffer), 1, 1, white);

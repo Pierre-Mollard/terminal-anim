@@ -6,6 +6,7 @@
 #include "platform.h"
 #include <math.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -462,6 +463,31 @@ int cells_differ(struct tau_cell a, struct tau_cell b) {
   return a.symbol != b.symbol || styles_differ(a.style, b.style);
 }
 
+// utf is 1 to 4 bytes, convert it from unicode (32bits)
+size_t utf8_encode(uint32_t symbol, char out[4]) {
+  if (symbol <= 0x7F) {
+    // on 1 byte utf is compatible with ascii
+    out[0] = (char)symbol;
+    return 1;
+  } else if (symbol <= 0x7FF) {
+    // next, utf8 contains 6 bits payload per bytes
+    out[0] = (char)(0xC0 | (symbol >> 6));
+    out[1] = (char)(0x80 | (symbol & 0x3F));
+    return 2;
+  } else if (symbol <= 0xFFFF) {
+    out[0] = (char)(0xE0 | (symbol >> 12));
+    out[1] = (char)(0x80 | ((symbol >> 6) & 0x3F));
+    out[2] = (char)(0x80 | (symbol & 0x3F));
+    return 3;
+  } else {
+    out[0] = (char)(0xF0 | (symbol >> 18));
+    out[1] = (char)(0x80 | ((symbol >> 12) & 0x3F));
+    out[2] = (char)(0x80 | ((symbol >> 6) & 0x3F));
+    out[3] = (char)(0x80 | (symbol & 0x3F));
+    return 4;
+  }
+}
+
 void tau_draw_full(tau_ctx *ctx) {
   if (!ctx || !ctx->back_buffer || !ctx->output_buffer)
     return;
@@ -477,16 +503,17 @@ void tau_draw_full(tau_ctx *ctx) {
     for (size_t x = 0; x < ctx->nb_cols; x++) {
       size_t i = y * ctx->nb_cols + x;
       struct tau_cell cell = ctx->back_buffer[i];
-      char c = (char)cell.symbol;
 
       if (styles_differ(cell.style, cached_style)) {
         write_style_in_buffer(&cursor, cached_style, cell.style);
         cached_style = cell.style;
       }
 
-      if (c == '\0')
-        c = ' ';
-      *cursor++ = c;
+      char utf8[4];
+      size_t symbol_len = utf8_encode(cell.symbol, utf8);
+      for (size_t i = 0; i < symbol_len; i++) {
+        *cursor++ = utf8[i];
+      }
     }
 
     if (y + 1 < ctx->nb_rows) {
@@ -541,16 +568,17 @@ void tau_draw_diff(tau_ctx *ctx) {
 
       for (size_t i = first_index; i <= last_index; i++) {
         struct tau_cell cell = ctx->back_buffer[i];
-        char c = (char)cell.symbol;
 
         if (styles_differ(cell.style, cached_style)) {
           write_style_in_buffer(&cursor, cached_style, cell.style);
           cached_style = cell.style;
         }
 
-        if (c == '\0')
-          c = ' ';
-        *cursor++ = c;
+        char utf8[4];
+        size_t symbol_len = utf8_encode(cell.symbol, utf8);
+        for (size_t i = 0; i < symbol_len; i++) {
+          *cursor++ = utf8[i];
+        }
       }
 
       // UPDATES front buffer to be what is on screen (with only the part that

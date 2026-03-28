@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -41,11 +42,12 @@ int main(int argc, char *argv[]) {
   local_get_size(&max_rows, &max_cols);
   printf("FULLSCREEN TEST ROWS:%d/COLS:%d\n", max_rows, max_cols);
   printf("Show template mode (1) or test lib (2) ?\n");
+  printf("If 3 then lib + utf8 chars\n");
   printf("Type then enter...\n");
 
   int template_mode = 0;
   char user_input = '0';
-  while (user_input != '1' && user_input != '2') {
+  while (user_input != '1' && user_input != '2' && user_input != '3') {
     fscanf(stdin, "%c", &user_input);
   }
 
@@ -108,8 +110,12 @@ int main(int argc, char *argv[]) {
     }
 
     // TODO: Lib refresh
-    char used_char = 'I';
+    u_int32_t used_char = 'I';
     int counter = 0;
+
+    if (user_input == '3') {
+      used_char = 0x2573u;
+    }
 
     tau_style bg_style = {0};
     bg_style.fg.b = 255;
@@ -122,8 +128,14 @@ int main(int argc, char *argv[]) {
     while (tau_g_is_running) {
       counter++;
       used_char = '#';
+      if (user_input == '3') {
+        used_char = 0x2573u;
+      }
       if (counter % 2 == 0) {
         used_char = '@';
+        if (user_input == '3') {
+          used_char = 0x2588u;
+        }
       }
       tau_fill(ctx, used_char, bg_style);
       tau_draw_diff(ctx);
