@@ -18,8 +18,12 @@
 #define CURSOR_CMD "H"
 #define CURSOR_HOME CSI CURSOR_CMD
 #define CURSOR_TO_F CSI "%d;%d" CURSOR_CMD
+
 #define CLEAR_SCREEN CSI "2J"
 #define CLEAR_ALL CLEAR_SCREEN CURSOR_HOME
+
+#define SYNC_BEGIN CSI "2026h"
+#define SYNC_END CSI "2026l"
 
 // Colors
 // Note: _RGB means formatted

@@ -494,6 +494,8 @@ void tau_draw_full(tau_ctx *ctx) {
 
   char *cursor = ctx->output_buffer;
 
+  // start sync to reduce flickering
+  write_in_buffer(&cursor, SYNC_BEGIN);
   // HOME cursor and clear
   write_in_buffer(&cursor, CURSOR_HOME);
 
@@ -522,6 +524,9 @@ void tau_draw_full(tau_ctx *ctx) {
     }
   }
 
+  // end sync
+  write_in_buffer(&cursor, SYNC_END);
+
   // DRAWS once ouput
   size_t len = (size_t)(cursor - ctx->output_buffer);
   write(STDOUT_FILENO, ctx->output_buffer, len);
@@ -539,6 +544,9 @@ void tau_draw_diff(tau_ctx *ctx) {
     return;
 
   char *cursor = ctx->output_buffer;
+
+  // start sync to reduce flickering
+  write_in_buffer(&cursor, SYNC_BEGIN);
 
   for (size_t row = 0; row < ctx->nb_rows; row++) {
     int diff_in_line = 0;
@@ -587,6 +595,9 @@ void tau_draw_diff(tau_ctx *ctx) {
              (last_index - first_index + 1) * sizeof(*ctx->back_buffer));
     }
   }
+
+  // end sync
+  write_in_buffer(&cursor, SYNC_END);
 
   // DRAWS differences found
   size_t len = (size_t)(cursor - ctx->output_buffer);
