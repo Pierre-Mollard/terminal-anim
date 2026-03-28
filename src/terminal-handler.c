@@ -221,3 +221,12 @@ void tau_resize_buffers(tau_ctx *ctx, unsigned int rows, unsigned int cols) {
   ctx->front_buffer = new_front;
   ctx->output_buffer = new_output;
 }
+
+void tau_get_terminal_info(tau_ctx *ctx, unsigned int *rows,
+                           unsigned int *cols) {
+  if (!ctx)
+    return;
+
+  *rows = ctx->nb_rows;
+  *cols = ctx->nb_cols;
+}

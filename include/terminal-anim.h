@@ -49,6 +49,8 @@ typedef struct tau_style {
 tau_ctx *tau_create();
 void tau_destroy(tau_ctx *ctx);
 void tau_resize_buffers(tau_ctx *ctx, unsigned int rows, unsigned int cols);
+void tau_get_terminal_info(tau_ctx *ctx, unsigned int *rows,
+                           unsigned int *cols);
 
 void tau_fill(tau_ctx *ctx, uint32_t symbol, tau_style style);
 void tau_draw_full(tau_ctx *ctx);

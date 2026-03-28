@@ -65,27 +65,36 @@ void draw_screen(tau_ctx *ctx) {
   white.fg.g = 255;
   white.fg.b = 255;
   white.has_fg = true;
-  tau_put_filled_rectangle(ctx, 10, 20, 5, 5, 'R', green);
-  tau_put_filled_rectangle(ctx, 20, 30, 50, 7, 'R', blue);
-  tau_put_filled_rectangle(ctx, user_x, user_y, 5, 5, 'R', gray);
+
+  unsigned int nb_rows, nb_cols = 0;
+  tau_get_terminal_info(ctx, &nb_rows, &nb_cols);
+
+  tau_put_hline(ctx, 0, 0, nb_cols - 1, '-', gray);
+  tau_put_hline(ctx, nb_rows - 1, 0, nb_cols - 1, '-', gray);
+  tau_put_vline(ctx, 0, 0, nb_rows - 1, '|', gray);
+  tau_put_vline(ctx, nb_cols - 1, 0, nb_rows - 1, '|', gray);
 
   char buffer[256];
-  snprintf(buffer, 256, "ROWS: %d, COLS: %d", screen_max_rows, screen_max_cols);
-  tau_put_str(ctx, buffer, strlen(buffer), 0, 0, white);
+  snprintf(buffer, 256, "ROWS: %d, COLS: %d", nb_rows, nb_cols);
+  tau_put_str(ctx, buffer, strlen(buffer), 1, 1, white);
 
   snprintf(buffer, 256, "READ: %c", input_display);
-  tau_put_str(ctx, buffer, strlen(buffer), 0, 2, white);
+  tau_put_str(ctx, buffer, strlen(buffer), 1, 2, white);
 
   snprintf(buffer, 256, "CTRL-C to quit");
-  tau_put_str(ctx, buffer, strlen(buffer), 0, 30, red);
+  tau_put_str(ctx, buffer, strlen(buffer), 1, nb_rows - 2, red);
 
   snprintf(buffer, 256, "hjkl to move");
-  tau_put_str(ctx, buffer, strlen(buffer), 2, 29, white);
+  tau_put_str(ctx, buffer, strlen(buffer), nb_cols - 13, 1, white);
   snprintf(buffer, 256, "maj SHIFT move further");
-  tau_put_str(ctx, buffer, strlen(buffer), 50, 30, white);
+  tau_put_str(ctx, buffer, strlen(buffer), nb_cols - 23, 2, white);
 
   // disabled: scene_update(&cursor, 0, 0, screen_max_cols / 3, screen_max_rows
   // / 3);
+
+  tau_put_filled_rectangle(ctx, 10, 20, 5, 5, 'R', green);
+  tau_put_filled_rectangle(ctx, nb_cols - 51, nb_rows - 8, 50, 7, 'R', blue);
+  tau_put_filled_rectangle(ctx, user_x, user_y, 5, 5, 'R', gray);
 
   tau_draw_diff(ctx);
 }
