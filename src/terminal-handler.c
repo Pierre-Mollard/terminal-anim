@@ -19,6 +19,7 @@ volatile int g_tau_ctx_nb_open = 0;
 static tau_ctx *g_active_ctx = NULL; // only one at a time
 
 volatile sig_atomic_t tau_g_is_running;
+static volatile sig_atomic_t resize_pending = 0;
 static unsigned int screen_max_rows, screen_max_cols = 0;
 
 void resize_screen_callback(int new_rows, int new_cols) {
@@ -29,6 +30,8 @@ void resize_screen_callback(int new_rows, int new_cols) {
     tau_resize_buffers(g_active_ctx, new_rows, new_cols);
     tau_draw_full(g_active_ctx);
   }
+
+  resize_pending = 1;
 }
 
 void tau_destroy(tau_ctx *ctx) {
@@ -233,4 +236,19 @@ void tau_get_terminal_info(tau_ctx *ctx, unsigned int *rows,
 
   *rows = ctx->nb_rows;
   *cols = ctx->nb_cols;
+}
+
+// TODO: implement FIFO cache
+// TODO: keep only one way to handle resize data
+void tau_poll_event(tau_ctx *ctx, tau_event *evt) {
+  // resize event
+  if (resize_pending == 1) {
+    evt->type = TAU_EVT_RESIZE;
+    evt->data.resize.cols = screen_max_cols;
+    evt->data.resize.rows = screen_max_rows;
+    return;
+  }
+
+  evt->type = TAU_EVT_NONE;
+  return;
 }
