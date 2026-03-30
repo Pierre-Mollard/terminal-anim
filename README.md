@@ -23,9 +23,10 @@ TODO:
 [] Improve circle with ellipse
 [] Fix fill circle (ugly)
 [] Refactor reuse code in shapes (put_char)
+[ ] Resize choose only one api call (polling)
+[ ] Mouse detection event
 [ ] Internal window support ? (with styles)
 [ ] Special color anim support ? (with update function)
-[ ] Mouse detection event
 [ ] Animation system
 
 Copyright (c) 2026 Pierre Mollard. All Rights Reserved.

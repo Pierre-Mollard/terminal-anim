@@ -7,6 +7,8 @@
 #include <time.h>
 #include <unistd.h>
 
+char text_buffer[50];
+
 int main(int argc, char *argv[]) {
   printf("Hello world from test event\n");
   tau_ctx *ctx;
@@ -44,23 +46,23 @@ int main(int argc, char *argv[]) {
   tau_fill(ctx, '_', bg_style);
   tau_put_filled_rectangle(ctx, 10, 10, 10, 10, 'R', fg_style);
   char *text = "this is a event test";
-  char text_buffer[50];
   tau_put_str(ctx, text, strlen(text), 1, 1, text_style);
   tau_draw_diff(ctx);
 
-  tau_event evt = {0};
+  tau_event evt = {.type = TAU_EVT_NONE};
   int counter = 0;
   int evt_counter = 0;
 
   while (tau_g_is_running) {
     counter++;
 
-    // tau_poll_event(ctx, &evt);
-    // if (evt.type != TAU_EVT_NONE) {
-    // evt_counter++;
-    //}
+    tau_poll_event(ctx, &evt);
+    if (evt.type != TAU_EVT_NONE) {
+      evt_counter++;
+    }
 
-    snprintf(text_buffer, 50, "[%d] event counter : %d", counter, evt_counter);
+    snprintf(text_buffer, sizeof(text_buffer), "[%d] event counter : %d",
+             counter, evt_counter);
     tau_put_str(ctx, text_buffer, 50, 1, 3, fg_style);
 
     tau_draw_diff(ctx);
