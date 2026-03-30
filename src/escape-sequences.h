@@ -73,6 +73,10 @@
 #define SHOW_CURSOR CSI "?25h"
 #define ALTERNATIVE_BUFFER_ON CSI "?1049h"
 #define ALTERNATIVE_BUFFER_OFF CSI "?1049l"
+#define INPUT_TRACKING_ON CSI "?1000h"
+#define INPUT_TRACKING_OFF CSI "?1000l"
+#define INPUT_SGR_EXTENDED_ON CSI "?1006h"
+#define INPUT_SGR_EXTENDED_OFF CSI "?1006l"
 
 static inline void write_in_term(const char *seq) {
   write(STDOUT_FILENO, seq, strlen(seq));
