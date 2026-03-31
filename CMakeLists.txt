@@ -17,6 +17,7 @@ target_sources(TAlib
     src/scene.c
     src/scene.h
     src/terminal-handler.c
+    src/input-handler.c
     src/terminal-anim-internal.h
 
   PUBLIC

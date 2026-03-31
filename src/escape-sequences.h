@@ -12,7 +12,8 @@
 
 // The 'escape' of espace sequence, 04/08 octal since /e is not standard
 #define ESC "\033"
-#define CSI ESC "["
+#define ESC_SEP "["
+#define CSI ESC ESC_SEP
 
 // Note: _F means formatted
 #define CURSOR_CMD "H"
