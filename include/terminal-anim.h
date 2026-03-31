@@ -33,12 +33,15 @@ enum tau_attr {
   TAU_ATTR_OVERLINE = 1u << 12,
 };
 
-// TODO: implem key and mouse down events
 typedef enum {
   TAU_EVT_NONE,
   TAU_EVT_RESIZE,
   TAU_EVT_KEY,
-  TAU_EVT_MOUSE_DOWN,
+  TAU_EVT_MOUSE_PRESS,
+  TAU_EVT_MOUSE_RELEASE,
+  TAU_EVT_MOUSE_MOVE,
+  TAU_EVT_MOUSE_WHEEL_UP,
+  TAU_EVT_MOUSE_WHEEL_DOWN,
 } tau_event_type;
 
 typedef struct tau_style {
@@ -54,7 +57,8 @@ typedef struct {
   tau_event_type type;
   union {
     struct {
-      int x, y, button, mods;
+      int x, y, button, wheel;
+      int shift, alt, ctrl, motion, release;
     } mouse;
     struct {
       uint32_t codepoint, key, mods;
@@ -74,6 +78,7 @@ void tau_destroy(tau_ctx *ctx);
 void tau_resize_buffers(tau_ctx *ctx, unsigned int rows, unsigned int cols);
 void tau_get_terminal_info(tau_ctx *ctx, unsigned int *rows,
                            unsigned int *cols);
+void tau_update_input(tau_ctx *ctx);
 void tau_poll_event(tau_ctx *ctx, tau_event *evt);
 
 void tau_fill(tau_ctx *ctx, uint32_t symbol, tau_style style);

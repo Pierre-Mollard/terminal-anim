@@ -11,6 +11,8 @@
 #define MAX_BUFFER_WIDTH 100000
 
 // The 'escape' of espace sequence, 04/08 octal since /e is not standard
+#define ESC_CHAR '\033'
+#define ESC_SEP_CHAR '['
 #define ESC "\033"
 #define ESC_SEP "["
 #define CSI ESC ESC_SEP
