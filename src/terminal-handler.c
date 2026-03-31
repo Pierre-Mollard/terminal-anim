@@ -90,8 +90,7 @@ tau_ctx *tau_create() {
   g_active_ctx = ctx;
 
   ctx->id = ++g_tau_ctx_nb_open;
-  ctx->cursor_x = 0;
-  ctx->cursor_y = 0;
+  ctx->input_state.stdin_fd = STDIN_FILENO;
 
   unsigned int rows, cols;
   pf_get_size(&rows, &cols);

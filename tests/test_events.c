@@ -56,6 +56,8 @@ int main(int argc, char *argv[]) {
   while (tau_g_is_running) {
     counter++;
 
+    tau_update_input(ctx);
+
     tau_poll_event(ctx, &evt);
     if (evt.type != TAU_EVT_NONE) {
       evt_counter++;

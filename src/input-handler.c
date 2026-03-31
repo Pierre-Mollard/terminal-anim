@@ -1,5 +1,8 @@
 #include "escape-sequences.h"
+#include "terminal-anim-internal.h"
 #include "terminal-anim.h"
+#include <errno.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -63,15 +66,72 @@ static int parse_sgr_mouse(const char *buffer, size_t len,
   return 1;
 }
 
+static int parse_input(tau_ctx *ctx, tau_event *out_evt) {
+  unsigned char tmp[128];
+  size_t n = input_fifo_peek(&ctx->input_state.in_fifo, tmp, sizeof(tmp));
+
+  if (n == 0)
+    return 0;
+
+  if (tmp[0] != ESC_CHAR) {
+    out_evt->type = TAU_EVT_KEY;
+    out_evt->data.key.key = tmp[0];
+    input_fifo_discard(&ctx->input_state.in_fifo, 1);
+  }
+
+  if (n >= 3 && tmp[0] == 0x1b && tmp[1] == '[' && tmp[2] == '<') {
+    for (size_t i = 3; i < n; i++) {
+      if (tmp[i] == 'M' || tmp[i] == 'm') {
+        if (!parse_sgr_mouse((const char *)tmp, i + 1, out_evt))
+          return 0;
+        input_fifo_discard(&ctx->input_state.in_fifo, i + 1);
+        return 1;
+      }
+    }
+    return 0;
+  }
+
+  if (n == 1)
+    return 0;
+
+  out_evt->type = TAU_EVT_KEY;
+  out_evt->data.key.codepoint = 0x1b;
+  input_fifo_discard(&ctx->input_state.in_fifo, 1);
+  return 1;
+}
+
+static void parse_pending_input(tau_ctx *ctx) {
+  tau_event evt;
+
+  while (parse_input(ctx, &evt)) {
+    event_fifo_push(&ctx->input_state.evt_fifo, evt);
+  }
+}
+
 void tau_update_input(tau_ctx *ctx) {
-  char read_buffer[64];
-  tau_event read_event = {0};
-  int len = read(stdin, read_buffer, sizeof(read_buffer));
-  if (len > 0) {
-    int parse_success = parse_sgr_mouse(read_buffer, len, &read_event);
-    if (parse_success) {
-      // actually read a mouse event
-      // TODO: add holding ring buffer
+  if (!ctx)
+    return;
+
+  unsigned char read_buffer[256];
+
+  // TODO: make sure non blocking stdin (BUG)
+  while (true) {
+    size_t len =
+        read(ctx->input_state.stdin_fd, read_buffer, sizeof(read_buffer));
+    if (len > 0) {
+      for (size_t i = 0; i < len; i++) {
+        input_fifo_push(&ctx->input_state.in_fifo, read_buffer[i]);
+      }
+    } else if (len == 0) {
+      break;
+    } else {
+      if (errno == EINTR) {
+        continue;
+      } else {
+        break;
+      }
     }
   }
+
+  parse_pending_input(ctx);
 }
