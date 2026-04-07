@@ -30,6 +30,7 @@ typedef struct {
 
 typedef struct {
   int stdin_fd;
+  int stdin_flags_init;
   tau_input_fifo in_fifo;
   tau_event_fifo evt_fifo;
 } tau_input_state;
@@ -49,13 +50,15 @@ struct tau_ctx {
 
 // TODO: check again these functions
 
-static int is_input_fifo_empty(const tau_input_fifo *q) {
+static inline int is_input_fifo_empty(const tau_input_fifo *q) {
   return q->head == q->tail;
 }
 
-static size_t input_fifo_next(size_t i, size_t cap) { return (i + 1) % cap; }
+static inline size_t input_fifo_next(size_t i, size_t cap) {
+  return (i + 1) % cap;
+}
 
-static int input_fifo_push(tau_input_fifo *q, unsigned char c) {
+static inline int input_fifo_push(tau_input_fifo *q, unsigned char c) {
   size_t next = input_fifo_next(q->tail, MAX_INPUT_NB);
   if (next == q->head)
     return 0;
@@ -64,7 +67,7 @@ static int input_fifo_push(tau_input_fifo *q, unsigned char c) {
   return 1;
 }
 
-static int input_fifo_pop(tau_input_fifo *q, unsigned char *out) {
+static inline int input_fifo_pop(tau_input_fifo *q, unsigned char *out) {
   if (q->head == q->tail)
     return 0;
   *out = q->data[q->head];
@@ -72,14 +75,14 @@ static int input_fifo_pop(tau_input_fifo *q, unsigned char *out) {
   return 1;
 }
 
-static size_t input_fifo_count(const tau_input_fifo *q) {
+static inline size_t input_fifo_count(const tau_input_fifo *q) {
   if (q->tail >= q->head)
     return q->tail - q->head;
   return MAX_INPUT_NB - q->head + q->tail;
 }
 
-static size_t input_fifo_peek(const tau_input_fifo *q, unsigned char *out,
-                              size_t maxn) {
+static inline size_t input_fifo_peek(const tau_input_fifo *q,
+                                     unsigned char *out, size_t maxn) {
   size_t n = input_fifo_count(q);
   if (n > maxn)
     n = maxn;
@@ -90,13 +93,13 @@ static size_t input_fifo_peek(const tau_input_fifo *q, unsigned char *out,
   return n;
 }
 
-static void input_fifo_discard(tau_input_fifo *q, size_t n) {
+static inline void input_fifo_discard(tau_input_fifo *q, size_t n) {
   while (n-- && q->head != q->tail) {
     q->head = (q->head + 1) % MAX_INPUT_NB;
   }
 }
 
-static int event_fifo_push(tau_event_fifo *q, tau_event ev) {
+static inline int event_fifo_push(tau_event_fifo *q, tau_event ev) {
   size_t next = (q->tail + 1) % MAX_EVENT_NB;
   if (next == q->head)
     return 0;
@@ -105,7 +108,7 @@ static int event_fifo_push(tau_event_fifo *q, tau_event ev) {
   return 1;
 }
 
-static int event_fifo_pop(tau_event_fifo *q, tau_event *out) {
+static inline int event_fifo_pop(tau_event_fifo *q, tau_event *out) {
   if (q->head == q->tail)
     return 0;
   *out = q->data[q->head];

@@ -2,6 +2,7 @@
 #include "platform.h"
 #include "terminal-anim-internal.h"
 #include "terminal-anim.h"
+#include <fcntl.h>
 #include <poll.h>
 #include <signal.h>
 #include <stdatomic.h>
@@ -48,6 +49,7 @@ void tau_destroy(tau_ctx *ctx) {
   write_in_term(CLEAR_ALL);
 
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &ctx->termios_conf_init);
+  fcntl(STDIN_FILENO, F_SETFL, ctx->input_state.stdin_flags_init);
 
   if (g_active_ctx == ctx) {
     g_active_ctx = NULL;
@@ -130,14 +132,23 @@ tau_ctx *tau_create() {
   // disable disable carriage return to new line
   termios_conf_new.c_iflag &= ~ICRNL;
   // disable other post processing
-  termios_conf_new.c_iflag &= ~OPOST;
+  termios_conf_new.c_oflag &= ~OPOST;
 
   // disable print user
   // wait for enter input (byte by byte instead)
   // Disable C-V (paste)
   termios_conf_new.c_lflag &= ~(ECHO | ICANON | IEXTEN);
 
+  // special control characters stay signal (ctrl-c stays SIGINT for example)
   termios_conf_new.c_lflag |= ISIG;
+
+  // read() return immediately if bytes available, else return 0 immediately
+  termios_conf_new.c_cc[VMIN] = 0;
+  termios_conf_new.c_cc[VTIME] = 0;
+
+  int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+  ctx->input_state.stdin_flags_init = flags;
+  fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
 
   // set new conf
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &termios_conf_new);

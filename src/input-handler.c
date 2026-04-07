@@ -1,6 +1,8 @@
 #include "escape-sequences.h"
 #include "terminal-anim-internal.h"
 #include "terminal-anim.h"
+#include <asm-generic/errno-base.h>
+#include <asm-generic/errno.h>
 #include <errno.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -114,12 +116,12 @@ void tau_update_input(tau_ctx *ctx) {
 
   unsigned char read_buffer[256];
 
-  // TODO: make sure non blocking stdin (BUG)
+  // non blocking from the attributes of termios in ctx
   while (true) {
-    size_t len =
+    ssize_t len =
         read(ctx->input_state.stdin_fd, read_buffer, sizeof(read_buffer));
     if (len > 0) {
-      for (size_t i = 0; i < len; i++) {
+      for (ssize_t i = 0; i < len; i++) {
         input_fifo_push(&ctx->input_state.in_fifo, read_buffer[i]);
       }
     } else if (len == 0) {
@@ -127,6 +129,8 @@ void tau_update_input(tau_ctx *ctx) {
     } else {
       if (errno == EINTR) {
         continue;
+      } else if (errno == EWOULDBLOCK || errno == EAGAIN) {
+        break;
       } else {
         break;
       }
