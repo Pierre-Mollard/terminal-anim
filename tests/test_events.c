@@ -58,8 +58,8 @@ int main(int argc, char *argv[]) {
 
     tau_update_input(ctx);
 
-    tau_poll_event(ctx, &evt);
-    if (evt.type != TAU_EVT_NONE) {
+    bool has_event = tau_poll_event(ctx, &evt);
+    if (has_event) {
       evt_counter++;
     }
 

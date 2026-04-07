@@ -79,7 +79,7 @@ void tau_resize_buffers(tau_ctx *ctx, unsigned int rows, unsigned int cols);
 void tau_get_terminal_info(tau_ctx *ctx, unsigned int *rows,
                            unsigned int *cols);
 void tau_update_input(tau_ctx *ctx);
-void tau_poll_event(tau_ctx *ctx, tau_event *evt);
+bool tau_poll_event(tau_ctx *ctx, tau_event *evt);
 
 void tau_fill(tau_ctx *ctx, uint32_t symbol, tau_style style);
 void tau_draw_full(tau_ctx *ctx);

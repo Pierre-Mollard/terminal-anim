@@ -139,3 +139,23 @@ void tau_update_input(tau_ctx *ctx) {
 
   parse_pending_input(ctx);
 }
+
+bool tau_poll_event(tau_ctx *ctx, tau_event *evt) {
+  if (!ctx || !evt)
+    return false;
+
+  return event_fifo_pop(&ctx->input_state.evt_fifo, evt);
+
+  // TODO: keep only one way to handle resize data
+
+  // resize event
+  /*
+  if (resize_pending == 1) {
+    resize_pending = 0;
+    evt->type = TAU_EVT_RESIZE;
+    evt->data.resize.cols = screen_max_cols;
+    evt->data.resize.rows = screen_max_rows;
+    return;
+  }
+  */
+}

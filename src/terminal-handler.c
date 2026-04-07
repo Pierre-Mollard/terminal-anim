@@ -247,22 +247,3 @@ void tau_get_terminal_info(tau_ctx *ctx, unsigned int *rows,
   *rows = ctx->nb_rows;
   *cols = ctx->nb_cols;
 }
-
-// TODO: implement FIFO cache
-// TODO: keep only one way to handle resize data
-void tau_poll_event(tau_ctx *ctx, tau_event *evt) {
-  if (!ctx || !evt)
-    return;
-
-  // resize event
-  if (resize_pending == 1) {
-    resize_pending = 0;
-    evt->type = TAU_EVT_RESIZE;
-    evt->data.resize.cols = screen_max_cols;
-    evt->data.resize.rows = screen_max_rows;
-    return;
-  }
-
-  evt->type = TAU_EVT_NONE;
-  return;
-}
