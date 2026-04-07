@@ -79,6 +79,7 @@ static int parse_input(tau_ctx *ctx, tau_event *out_evt) {
     out_evt->type = TAU_EVT_KEY;
     out_evt->data.key.key = tmp[0];
     input_fifo_discard(&ctx->input_state.in_fifo, 1);
+    return 1;
   }
 
   if (n >= 3 && tmp[0] == 0x1b && tmp[1] == '[' && tmp[2] == '<') {
