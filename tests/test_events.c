@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
   ts.tv_nsec = 20000000; // 20ms
 
   tau_fill(ctx, '_', bg_style);
-  tau_put_filled_rectangle(ctx, 10, 10, 10, 10, 'R', fg_style);
+  tau_put_filled_rectangle(ctx, 10, 20, 10, 10, 'R', fg_style);
   char *text = "this is a event test";
   tau_put_str(ctx, text, strlen(text), 1, 1, text_style);
   tau_draw_diff(ctx);
@@ -52,6 +52,13 @@ int main(int argc, char *argv[]) {
   tau_event evt = {.type = TAU_EVT_NONE};
   int counter = 0;
   int evt_counter = 0;
+  int mouse_move_counter = 0;
+  int mouse_press_counter = 0;
+  int mouse_release_counter = 0;
+  int mouse_wheel_up_counter = 0;
+  int mouse_wheel_down_counter = 0;
+  int evt_resize_counter = 0;
+  int evt_key_counter = 0;
 
   while (tau_g_is_running) {
     counter++;
@@ -61,11 +68,49 @@ int main(int argc, char *argv[]) {
     bool has_event = tau_poll_event(ctx, &evt);
     if (has_event) {
       evt_counter++;
+      if (evt.type == TAU_EVT_MOUSE_MOVE)
+        mouse_move_counter++;
+      if (evt.type == TAU_EVT_MOUSE_PRESS)
+        mouse_press_counter++;
+      if (evt.type == TAU_EVT_MOUSE_RELEASE)
+        mouse_release_counter++;
+      if (evt.type == TAU_EVT_MOUSE_WHEEL_UP)
+        mouse_wheel_up_counter++;
+      if (evt.type == TAU_EVT_MOUSE_WHEEL_DOWN)
+        mouse_wheel_down_counter++;
+
+      if (evt.type == TAU_EVT_RESIZE)
+        evt_resize_counter++;
+      if (evt.type == TAU_EVT_KEY)
+        evt_key_counter++;
     }
 
-    snprintf(text_buffer, sizeof(text_buffer), "[%d] event counter : %d",
+    snprintf(text_buffer, sizeof(text_buffer), "[%d] any event counter : %d",
              counter, evt_counter);
     tau_put_str(ctx, text_buffer, 50, 1, 3, fg_style);
+
+    snprintf(text_buffer, sizeof(text_buffer), "Mouse Event MOVE       : %d",
+             mouse_move_counter);
+    tau_put_str(ctx, text_buffer, 50, 1, 5, fg_style);
+    snprintf(text_buffer, sizeof(text_buffer), "Mouse Event PRESS      : %d",
+             mouse_press_counter);
+    tau_put_str(ctx, text_buffer, 50, 1, 6, fg_style);
+    snprintf(text_buffer, sizeof(text_buffer), "Mouse Event RELEASE    : %d",
+             mouse_release_counter);
+    tau_put_str(ctx, text_buffer, 50, 1, 7, fg_style);
+    snprintf(text_buffer, sizeof(text_buffer), "Mouse Event MOUSE UP   : %d",
+             mouse_wheel_up_counter);
+    tau_put_str(ctx, text_buffer, 50, 1, 8, fg_style);
+    snprintf(text_buffer, sizeof(text_buffer), "Mouse Event MOUSE DOWN : %d",
+             mouse_wheel_down_counter);
+    tau_put_str(ctx, text_buffer, 50, 1, 9, fg_style);
+
+    snprintf(text_buffer, sizeof(text_buffer), "Mouse Event RESIZE     : %d",
+             evt_resize_counter);
+    tau_put_str(ctx, text_buffer, 50, 1, 11, fg_style);
+    snprintf(text_buffer, sizeof(text_buffer), "Mouse Event KEY        : %d",
+             evt_key_counter);
+    tau_put_str(ctx, text_buffer, 50, 1, 12, fg_style);
 
     tau_draw_diff(ctx);
     while (nanosleep(&ts, &ts) == -1 && errno == EINTR) {
