@@ -46,6 +46,7 @@ void tau_destroy(tau_ctx *ctx) {
   write_in_term(ALTERNATIVE_BUFFER_OFF);
   write_in_term(INPUT_TRACKING_OFF);
   write_in_term(INPUT_SGR_EXTENDED_OFF);
+  write_in_term(INPUT_ALL_MOTION_OFF);
   write_in_term(CLEAR_ALL);
 
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &ctx->termios_conf_init);
@@ -168,6 +169,8 @@ tau_ctx *tau_create() {
   write_in_term(HIDE_CURSOR);
   write_in_term(ALTERNATIVE_BUFFER_ON);
   write_in_term(INPUT_TRACKING_ON);
+  // TODO: temp off because can overload (must add api enable/disable first)
+  //  write_in_term(INPUT_ALL_MOTION_ON);
   write_in_term(INPUT_SGR_EXTENDED_ON);
   write_in_term(CLEAR_ALL);
   return ctx;
