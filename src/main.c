@@ -127,9 +127,6 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
-  struct timespec ts;
-  ts.tv_nsec = 20000000; // 20ms
-
   tau_get_terminal_info(ctx, &screen_max_rows, &screen_max_cols);
 
   rainbow.has_fg = true;
@@ -138,7 +135,7 @@ int main(int argc, char *argv[]) {
   rainbow.fg.b = 0;
 
   tau_toggle_input_evt(ctx, true);
-  tau_toggle_resize_evt(ctx, true);
+  tau_toggle_resize_evt(ctx, true, true);
 
   draw_screen(ctx);
   tau_draw_full(ctx);
@@ -147,6 +144,11 @@ int main(int argc, char *argv[]) {
   bool size_changed = false;
 
   while (tau_g_is_running) {
+    struct timespec req;
+    req.tv_sec = 0;
+    req.tv_nsec = 20000000; // 20ms
+    struct timespec rem = {0};
+
     tau_update_input(ctx);
     tau_update_resize(ctx);
 
@@ -161,13 +163,17 @@ int main(int argc, char *argv[]) {
     }
 
     draw_screen(ctx);
-    if (size_changed)
+    if (size_changed) {
       tau_draw_full(ctx);
-    else
+      size_changed = false;
+    } else
       tau_draw_diff(ctx);
 
-    while (nanosleep(&ts, &ts) == -1 && errno == EINTR) {
+    // NOTE: warning, nanosleep is interrupted by SIGWINCH (event resize) if
+    // using signals
+    while (nanosleep(&req, &rem) == -1 && errno == EINTR) {
       // retry with remaining time
+      req = rem;
     }
   }
 

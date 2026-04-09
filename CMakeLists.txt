@@ -12,8 +12,6 @@ target_sources(TAlib
     src/main.c
     src/escape-sequences.h
     src/drawer.c
-    src/scene.c
-    src/scene.h
     src/terminal-handler.c
     src/input-handler.c
     src/terminal-anim-internal.h

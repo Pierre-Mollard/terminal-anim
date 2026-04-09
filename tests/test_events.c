@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
 
   tau_toggle_input_evt(ctx, true);
   tau_toggle_motion_evt(ctx, true);
-  tau_toggle_resize_evt(ctx, true);
+  tau_toggle_resize_evt(ctx, true, false);
 
   while (tau_g_is_running) {
     counter++;

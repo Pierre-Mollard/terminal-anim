@@ -148,7 +148,7 @@ void tau_update_resize(tau_ctx *ctx) {
   if (!ctx || !ctx->input_state.is_resize_tracking_on)
     return;
 
-  if (!resize_pending)
+  if (ctx->input_state.is_resize_tracking_with_signal && !resize_pending)
     return;
 
   resize_pending = 0;
@@ -184,10 +184,10 @@ static void handler_winch(int sig) {
   resize_pending = 1;
 }
 
-void tau_toggle_resize_evt(tau_ctx *ctx, bool enable) {
+void tau_toggle_resize_evt(tau_ctx *ctx, bool enable, bool use_signals) {
   ctx->input_state.is_resize_tracking_on = enable;
-
-  if (enable) {
+  ctx->input_state.is_resize_tracking_with_signal = use_signals;
+  if (enable && use_signals) {
     struct sigaction sig_action;
     sig_action.sa_handler = handler_winch;
     sig_action.sa_flags = 0;

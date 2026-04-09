@@ -34,6 +34,7 @@ typedef struct {
   bool is_input_tracking_on;
   bool is_motion_tracking_on;
   bool is_resize_tracking_on;
+  bool is_resize_tracking_with_signal;
   tau_input_fifo in_fifo;
   tau_event_fifo evt_fifo;
 } tau_input_state;

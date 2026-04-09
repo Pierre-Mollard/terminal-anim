@@ -84,7 +84,7 @@ bool tau_poll_event(tau_ctx *ctx, tau_event *evt);
 
 void tau_toggle_input_evt(tau_ctx *ctx, bool enable);
 void tau_toggle_motion_evt(tau_ctx *ctx, bool enable);
-void tau_toggle_resize_evt(tau_ctx *ctx, bool enable);
+void tau_toggle_resize_evt(tau_ctx *ctx, bool enable, bool use_signals);
 
 void tau_fill(tau_ctx *ctx, uint32_t symbol, tau_style style);
 void tau_draw_full(tau_ctx *ctx);
