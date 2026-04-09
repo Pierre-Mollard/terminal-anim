@@ -31,6 +31,8 @@ typedef struct {
 typedef struct {
   int stdin_fd;
   int stdin_flags_init;
+  bool is_input_tracking_on;
+  bool is_motion_tracking_on;
   tau_input_fifo in_fifo;
   tau_event_fifo evt_fifo;
 } tau_input_state;

@@ -62,6 +62,9 @@ int main(int argc, char *argv[]) {
   int mouse_press_x = 0, mouse_press_y = 0;
   uint32_t key_pressed = ' ';
 
+  tau_toggle_input_evt(ctx, true);
+  tau_toggle_motion_evt(ctx, true);
+
   while (tau_g_is_running) {
     counter++;
 
@@ -121,7 +124,6 @@ int main(int argc, char *argv[]) {
              (char)key_pressed);
     tau_put_str(ctx, text_buffer, 50, 1, 12, fg_style);
 
-    // TODO: EVT MOVE broke
     // TODO: EVT RESIZE broke
 
     tau_draw_diff(ctx);

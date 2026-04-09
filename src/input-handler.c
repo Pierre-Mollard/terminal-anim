@@ -160,3 +160,23 @@ bool tau_poll_event(tau_ctx *ctx, tau_event *evt) {
   }
   */
 }
+
+void tau_toggle_input_evt(tau_ctx *ctx, bool enable) {
+  ctx->input_state.is_input_tracking_on = enable;
+  if (enable) {
+    write_in_term(INPUT_TRACKING_ON);
+    write_in_term(INPUT_SGR_EXTENDED_ON);
+
+  } else {
+    write_in_term(INPUT_TRACKING_OFF);
+    write_in_term(INPUT_SGR_EXTENDED_OFF);
+  }
+}
+
+void tau_toggle_motion_evt(tau_ctx *ctx, bool enable) {
+  ctx->input_state.is_motion_tracking_on = enable;
+  if (enable)
+    write_in_term(INPUT_ALL_MOTION_ON);
+  else
+    write_in_term(INPUT_ALL_MOTION_OFF);
+}
