@@ -7,7 +7,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
+
+static volatile sig_atomic_t resize_pending = 0;
 
 static int parse_sgr_mouse(const char *buffer, size_t len,
                            tau_event *out_event) {
@@ -141,24 +144,56 @@ void tau_update_input(tau_ctx *ctx) {
   parse_pending_input(ctx);
 }
 
+void tau_update_resize(tau_ctx *ctx) {
+  if (!ctx || !ctx->input_state.is_resize_tracking_on)
+    return;
+
+  if (!resize_pending)
+    return;
+
+  resize_pending = 0;
+
+  unsigned int rows, cols;
+  struct winsize ws;
+  if (ioctl(STDIN_FILENO, TIOCGWINSZ, &ws) == -1)
+    return;
+
+  rows = ws.ws_row;
+  cols = ws.ws_col;
+  if (cols != ctx->nb_cols || rows != ctx->nb_rows) {
+    ctx->nb_rows = rows;
+    ctx->nb_cols = cols;
+
+    tau_event evt = {0};
+    evt.type = TAU_EVT_RESIZE;
+    evt.data.resize.cols = cols;
+    evt.data.resize.rows = rows;
+    event_fifo_push(&ctx->input_state.evt_fifo, evt);
+  }
+}
+
 bool tau_poll_event(tau_ctx *ctx, tau_event *evt) {
   if (!ctx || !evt)
     return false;
 
   return event_fifo_pop(&ctx->input_state.evt_fifo, evt);
+}
 
-  // TODO: keep only one way to handle resize data
+static void handler_winch(int sig) {
+  (void)sig; // unused
+  resize_pending = 1;
+}
 
-  // resize event
-  /*
-  if (resize_pending == 1) {
-    resize_pending = 0;
-    evt->type = TAU_EVT_RESIZE;
-    evt->data.resize.cols = screen_max_cols;
-    evt->data.resize.rows = screen_max_rows;
-    return;
+void tau_toggle_resize_evt(tau_ctx *ctx, bool enable) {
+  ctx->input_state.is_resize_tracking_on = enable;
+
+  if (enable) {
+    struct sigaction sig_action;
+    sig_action.sa_handler = handler_winch;
+    sig_action.sa_flags = 0;
+    sigemptyset(&sig_action.sa_mask);
+    sigaction(SIGWINCH, &sig_action, NULL);
   }
-  */
 }
 
 void tau_toggle_input_evt(tau_ctx *ctx, bool enable) {

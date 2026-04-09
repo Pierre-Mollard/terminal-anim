@@ -1,9 +1,7 @@
 #include "escape-sequences.h"
-#include "platform.h"
 #include "terminal-anim-internal.h"
 #include "terminal-anim.h"
 
-#include "platform.h"
 #include <math.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -45,7 +43,8 @@ void tau_put_filled_rectangle(tau_ctx *ctx, int x, int y, unsigned int width,
                               tau_style style) {
 
   unsigned int screen_width, screen_height;
-  pf_get_size(&screen_height, &screen_width);
+  screen_height = ctx->nb_rows;
+  screen_width = ctx->nb_cols;
 
   if (x >= screen_width || y >= screen_height)
     return;
@@ -77,7 +76,8 @@ void tau_put_rectangle(tau_ctx *ctx, int x, int y, unsigned int width,
                        unsigned int height, uint32_t symbol, tau_style style) {
 
   unsigned int screen_width, screen_height;
-  pf_get_size(&screen_height, &screen_width);
+  screen_height = ctx->nb_rows;
+  screen_width = ctx->nb_cols;
 
   if (x >= screen_width || y >= screen_height)
     return;

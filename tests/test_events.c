@@ -64,11 +64,13 @@ int main(int argc, char *argv[]) {
 
   tau_toggle_input_evt(ctx, true);
   tau_toggle_motion_evt(ctx, true);
+  tau_toggle_resize_evt(ctx, true);
 
   while (tau_g_is_running) {
     counter++;
 
     tau_update_input(ctx);
+    tau_update_resize(ctx);
 
     bool has_event = tau_poll_event(ctx, &evt);
     if (has_event) {
@@ -123,8 +125,6 @@ int main(int argc, char *argv[]) {
              "Mouse Event KEY        : %d (%c)", evt_key_counter,
              (char)key_pressed);
     tau_put_str(ctx, text_buffer, 50, 1, 12, fg_style);
-
-    // TODO: EVT RESIZE broke
 
     tau_draw_diff(ctx);
     while (nanosleep(&ts, &ts) == -1 && errno == EINTR) {

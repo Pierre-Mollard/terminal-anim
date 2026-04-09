@@ -1,5 +1,4 @@
 #include "escape-sequences.h"
-#include "platform.h"
 #include "terminal-anim-internal.h"
 #include "terminal-anim.h"
 #include <fcntl.h>
@@ -12,28 +11,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/ioctl.h>
 #include <sys/poll.h>
 #include <termios.h>
 #include <unistd.h>
 
 volatile int g_tau_ctx_nb_open = 0;
 static tau_ctx *g_active_ctx = NULL; // only one at a time
-
 volatile sig_atomic_t tau_g_is_running;
-static volatile sig_atomic_t resize_pending = 0;
-static unsigned int screen_max_rows, screen_max_cols = 0;
-
-void resize_screen_callback(int new_rows, int new_cols) {
-  screen_max_rows = new_rows;
-  screen_max_cols = new_cols;
-
-  if (g_active_ctx != NULL) {
-    tau_resize_buffers(g_active_ctx, new_rows, new_cols);
-    tau_draw_full(g_active_ctx);
-  }
-
-  resize_pending = 1;
-}
 
 void tau_destroy(tau_ctx *ctx) {
   if (!ctx)
@@ -83,6 +68,13 @@ tau_ctx *tau_create() {
     return NULL;
   }
 
+  unsigned int rows, cols;
+  struct winsize ws;
+  if (ioctl(STDIN_FILENO, TIOCGWINSZ, &ws) == -1) {
+    perror("cant get terminal size");
+    return NULL;
+  }
+
   tau_ctx *ctx = calloc(1, sizeof(*ctx));
   if (!ctx)
     return NULL;
@@ -92,8 +84,9 @@ tau_ctx *tau_create() {
   ctx->id = ++g_tau_ctx_nb_open;
   ctx->input_state.stdin_fd = STDIN_FILENO;
 
-  unsigned int rows, cols;
-  pf_get_size(&rows, &cols);
+  rows = ws.ws_row;
+  cols = ws.ws_col;
+
   ctx->nb_rows = rows;
   ctx->nb_cols = cols;
   ctx->nb_cells = ctx->nb_rows * ctx->nb_cols;
@@ -158,8 +151,6 @@ tau_ctx *tau_create() {
   sigemptyset(&sa_int.sa_mask);
   sigaction(SIGTERM, &sa_int, NULL);
   sigaction(SIGINT, &sa_int, NULL);
-
-  pf_register_size_change_cb((pf_size_change_cb)&resize_screen_callback);
 
   tau_g_is_running = 1;
 

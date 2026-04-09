@@ -1,6 +1,4 @@
 #include "box-drawing-chars.h"
-#include "platform.h"
-#include "scene.h"
 #include "terminal-anim.h"
 #include <errno.h>
 #include <poll.h>
@@ -9,12 +7,13 @@
 #include <string.h>
 #include <sys/poll.h>
 #include <termios.h>
+#include <time.h>
 #include <unistd.h>
 
 // variables for this file
 volatile int user_x = 1;
 volatile int user_y = 1;
-static unsigned int screen_max_rows, screen_max_cols = 0;
+static unsigned int screen_max_rows = 0, screen_max_cols = 0;
 static char input_display = ' ';
 static tau_style rainbow = {0};
 
@@ -84,7 +83,7 @@ void draw_screen(tau_ctx *ctx) {
     }
   }
 
-  unsigned int nb_rows, nb_cols = 0;
+  unsigned int nb_rows = 0, nb_cols = 0;
   tau_get_terminal_info(ctx, &nb_rows, &nb_cols);
 
   tau_put_hline(ctx, 0, 0, nb_cols - 1, TAU_BD_HEAVY_HORIZONTAL, gray);
@@ -119,8 +118,6 @@ void draw_screen(tau_ctx *ctx) {
   tau_put_filled_rectangle(ctx, 10, 20, 5, 5, 'R', green);
   tau_put_filled_rectangle(ctx, nb_cols - 51, nb_rows - 8, 50, 7, 'R', blue);
   tau_put_filled_rectangle(ctx, user_x, user_y, 5, 5, '#', rainbow);
-
-  tau_draw_diff(ctx);
 }
 
 int main(int argc, char *argv[]) {
@@ -130,40 +127,48 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
-  pf_get_size(&screen_max_rows, &screen_max_cols);
+  struct timespec ts;
+  ts.tv_nsec = 20000000; // 20ms
 
-  struct pollfd poll_fd[1];
-  poll_fd[0].fd = STDIN_FILENO;
-  poll_fd[0].events = POLLIN;
-  poll_fd[0].revents = 0;
+  tau_get_terminal_info(ctx, &screen_max_rows, &screen_max_cols);
 
   rainbow.has_fg = true;
   rainbow.fg.r = 0;
   rainbow.fg.g = 0;
   rainbow.fg.b = 0;
 
-  scene_init();
+  tau_toggle_input_evt(ctx, true);
+  tau_toggle_resize_evt(ctx, true);
+
+  draw_screen(ctx);
+  tau_draw_full(ctx);
+
+  tau_event evt = {.type = TAU_EVT_NONE};
+  bool size_changed = false;
 
   while (tau_g_is_running) {
-    pf_poll_events();
+    tau_update_input(ctx);
+    tau_update_resize(ctx);
 
-    int ret_poll = poll(poll_fd, 1, 20); // ms
-    if (ret_poll == -1) {
-      if (errno == EINTR)
-        continue; // interrupted by SIGWINCH handler
-      perror("poll");
-      break;
-    }
-    if (ret_poll > 0) {
-      if (poll_fd[0].revents & POLLIN) {
-        char c;
-        if (read(STDIN_FILENO, &c, 1) > 0) {
-          handle_user_input(c);
-        }
+    bool has_event = tau_poll_event(ctx, &evt);
+    if (has_event) {
+      if (evt.type == TAU_EVT_KEY) {
+        char key_pressed = evt.data.key.key;
+        handle_user_input(key_pressed);
       }
+      if (evt.type == TAU_EVT_RESIZE)
+        size_changed = true;
     }
 
     draw_screen(ctx);
+    if (size_changed)
+      tau_draw_full(ctx);
+    else
+      tau_draw_diff(ctx);
+
+    while (nanosleep(&ts, &ts) == -1 && errno == EINTR) {
+      // retry with remaining time
+    }
   }
 
   tau_destroy(ctx);

@@ -40,8 +40,6 @@ Vector3 camera_pos = {0, 0, 0};
 Vector3 sphere_pos = {0, 0, 6};
 double sphere_radius = 2.0f;
 
-void scene_init() {}
-
 void scene_update(char **win_buff, int pos_x, int pos_y, int cam_w, int cam_h) {
 
   double aspect = (double)cam_w / cam_h;

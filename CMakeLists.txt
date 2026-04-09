@@ -11,8 +11,6 @@ target_sources(TAlib
   PRIVATE
     src/main.c
     src/escape-sequences.h
-    src/platform.h
-    src/platform_unix.c
     src/drawer.c
     src/scene.c
     src/scene.h
