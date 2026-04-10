@@ -5,6 +5,11 @@
 // Source reference: https://www.unicode.org/charts/nameslist/n_2500.html
 // Generated with ChatGPT 5.2
 
+// Generic macro
+#define EDGE_KEY(t, b, l, r)                                                   \
+  (((uint32_t)(t) << 0) | ((uint32_t)(b) << 4) | ((uint32_t)(l) << 8) |        \
+   ((uint32_t)(r) << 12))
+
 // Light and heavy solid lines
 #define TAU_BD_LIGHT_HORIZONTAL 0x2500u // ─
 #define TAU_BD_HEAVY_HORIZONTAL 0x2501u // ━
@@ -148,7 +153,5 @@
 #define TAU_BD_LIGHT_UP_AND_HEAVY_DOWN 0x257Du    // ╽
 #define TAU_BD_HEAVY_LEFT_AND_LIGHT_RIGHT 0x257Eu // ╾
 #define TAU_BD_HEAVY_UP_AND_LIGHT_DOWN 0x257Fu    // ╿
-
-// TODO: hande utf8 (multiple bytes per cell in drawing functions)
 
 #endif
