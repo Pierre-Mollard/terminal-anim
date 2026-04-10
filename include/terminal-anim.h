@@ -44,6 +44,13 @@ typedef enum {
   TAU_EVT_MOUSE_WHEEL_DOWN,
 } tau_event_type;
 
+typedef enum {
+  TAU_BOX_NONE,
+  TAU_BOX_LIGHT,
+  TAU_BOX_HEAVY,
+  TAU_BOX_DOUBLE,
+} tau_box_style;
+
 typedef struct tau_style {
   tau_rgb fg;
   tau_rgb bg;
@@ -124,6 +131,9 @@ void tau_put_filled_triangle(tau_ctx *ctx, int x0, int y0, int x1, int y1,
                              int x2, int y2, uint32_t symbol, tau_style style);
 void tau_put_triangle(tau_ctx *ctx, int x0, int y0, int x1, int y1, int x2,
                       int y2, uint32_t symbol, tau_style style);
+
+void tau_put_box(tau_ctx *ctx, int x, int y, unsigned int width,
+                 unsigned int height, tau_box_style box_style, tau_style style);
 
 extern volatile sig_atomic_t tau_g_is_running;
 

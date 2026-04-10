@@ -15,6 +15,7 @@ target_sources(TAlib
     src/terminal-handler.c
     src/input-handler.c
     src/terminal-anim-internal.h
+    src/box-drawer.c
 
   PUBLIC
     FILE_SET HEADERS
@@ -60,3 +61,7 @@ target_link_libraries(TestShapesRound PRIVATE TAlib)
 add_executable(TestEvent)
 target_sources(TestEvent PRIVATE tests/test_events.c)
 target_link_libraries(TestEvent PRIVATE TAlib)
+
+add_executable(TestBox)
+target_sources(TestBox PRIVATE tests/test_box.c)
+target_link_libraries(TestBox PRIVATE TAlib)
