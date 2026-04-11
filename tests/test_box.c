@@ -62,16 +62,22 @@ int main(int argc, char *argv[]) {
                   .height = 5,
                   .box_style = TAU_BOX_LIGHT,
                   .style = fg_light_style};
-  tau_box box2 = {.x = 10,
+  tau_box box2 = {.x = 9,
                   .y = 2,
                   .width = 10,
                   .height = 5,
                   .box_style = TAU_BOX_HEAVY,
                   .style = fg_light_style};
+  tau_box box3 = {.x = 20,
+                  .y = 0,
+                  .width = 10,
+                  .height = 10,
+                  .box_style = TAU_BOX_DOUBLE,
+                  .style = fg_light_style};
 
-  tau_box box_list[2] = {box1, box2};
+  tau_box box_list[3] = {box1, box2, box3};
 
-  tau_put_box_grid(ctx, box_list, 2);
+  tau_put_box_grid(ctx, box_list, 3);
 
   tau_draw_diff(ctx);
   sleep(5);

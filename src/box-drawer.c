@@ -1,7 +1,9 @@
 
 #include "box-drawing-chars.h"
 #include "terminal-anim.h"
+#include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 static uint32_t resolve_border_style_from_grid(tau_box_style top,
                                                tau_box_style bottom,
@@ -266,10 +268,76 @@ void tau_put_box(tau_ctx *ctx, int x, int y, unsigned int width,
   tau_put_char(ctx, bottom_right_char, x + width, y + height, style);
 }
 
+static inline size_t grid_index(int x, int y, int w) {
+  return (size_t)y * (size_t)w + (size_t)x;
+}
+
 void tau_put_box_grid(tau_ctx *ctx, tau_box *boxes, size_t amount) {
 
+  // building fast representation of box borders
+  int min_x = 0, min_y = 0;
+  int max_x = 0, max_y = 0;
   for (int i = 0; i < amount; i++) {
-    tau_put_box(ctx, boxes[i].x, boxes[i].y, boxes[i].width, boxes[i].height,
-                boxes[i].box_style, boxes[i].style);
+    tau_box current_box = boxes[i];
+    if (current_box.x <= min_x)
+      min_x = current_box.x;
+    if (current_box.y <= min_y)
+      min_y = current_box.y;
+    if (current_box.x + current_box.width > max_x)
+      max_x = current_box.x + current_box.width;
+    if (current_box.y + current_box.height > max_y)
+      max_y = current_box.y + current_box.height;
   }
+  int effective_width = max_x - min_x;
+  int effective_height = max_y - min_y;
+  size_t total_size = effective_width * effective_height;
+
+  tau_box_style *grid = calloc(total_size, sizeof(*grid));
+
+  for (int i = 0; i < total_size; i++) {
+    grid[i] = TAU_BOX_NONE;
+  }
+
+  for (int i = 0; i < amount; i++) {
+    tau_box current_box = boxes[i];
+
+    int x1 = current_box.x - min_x;
+    int y1 = current_box.y - min_y;
+    int x2 = current_box.x + current_box.width - 1 - min_x;
+    int y2 = current_box.y + current_box.height - 1 - min_y;
+
+    for (int x = x1; x <= x2; x++) {
+      grid[grid_index(x, y1, effective_width)] = current_box.box_style;
+      grid[grid_index(x, y2, effective_width)] = current_box.box_style;
+    }
+    for (int y = y1; y <= y2; y++) {
+      grid[grid_index(x1, y, effective_width)] = current_box.box_style;
+      grid[grid_index(x2, y, effective_width)] = current_box.box_style;
+    }
+  }
+
+  for (int y = 0; y < effective_height; y++) {
+    for (int x = 0; x < effective_width; x++) {
+      tau_box_style center = grid[grid_index(x, y, effective_width)];
+      if (center == TAU_BOX_NONE)
+        continue;
+
+      tau_box_style left =
+          (x > 0) ? grid[grid_index(x - 1, y, effective_width)] : TAU_BOX_NONE;
+      tau_box_style right = (x + 1 < effective_width)
+                                ? grid[grid_index(x + 1, y, effective_width)]
+                                : TAU_BOX_NONE;
+      tau_box_style top =
+          (y > 0) ? grid[grid_index(x, y - 1, effective_width)] : TAU_BOX_NONE;
+      tau_box_style bottom = (y + 1 < effective_height)
+                                 ? grid[grid_index(x, y + 1, effective_width)]
+                                 : TAU_BOX_NONE;
+
+      uint32_t ch = resolve_border_style_from_grid(top, bottom, left, right);
+      if (ch != ' ')
+        tau_put_char(ctx, ch, x + min_x, y + min_y, boxes[0].style);
+    }
+  }
+
+  free(grid);
 }
