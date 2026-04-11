@@ -76,6 +76,15 @@ typedef struct {
   } data;
 } tau_event;
 
+typedef struct tau_box {
+  int x;
+  int y;
+  unsigned int width;
+  unsigned int height;
+  tau_box_style box_style;
+  tau_style style;
+} tau_box;
+
 #define TAU_STYLE_INVALID ((tau_style){.is_valid = false})
 #define TAU_STYLE_DEFAULT                                                      \
   ((tau_style){.is_valid = true, .has_fg = false, .has_bg = false, .attrs = 0})
@@ -134,6 +143,8 @@ void tau_put_triangle(tau_ctx *ctx, int x0, int y0, int x1, int y1, int x2,
 
 void tau_put_box(tau_ctx *ctx, int x, int y, unsigned int width,
                  unsigned int height, tau_box_style box_style, tau_style style);
+
+void tau_put_box_grid(tau_ctx *ctx, tau_box *boxes, size_t amount);
 
 extern volatile sig_atomic_t tau_g_is_running;
 

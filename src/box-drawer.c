@@ -265,3 +265,11 @@ void tau_put_box(tau_ctx *ctx, int x, int y, unsigned int width,
   tau_put_char(ctx, bottom_left_char, x, y + height, style);
   tau_put_char(ctx, bottom_right_char, x + width, y + height, style);
 }
+
+void tau_put_box_grid(tau_ctx *ctx, tau_box *boxes, size_t amount) {
+
+  for (int i = 0; i < amount; i++) {
+    tau_put_box(ctx, boxes[i].x, boxes[i].y, boxes[i].width, boxes[i].height,
+                boxes[i].box_style, boxes[i].style);
+  }
+}

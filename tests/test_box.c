@@ -56,6 +56,23 @@ int main(int argc, char *argv[]) {
   tau_put_box(ctx, 21, 10, 10, 5, TAU_BOX_LIGHT, fg_style);
   tau_put_box(ctx, 10, 21, 10, 5, TAU_BOX_HEAVY, hv_lines_style);
 
+  tau_box box1 = {.x = 0,
+                  .y = 2,
+                  .width = 10,
+                  .height = 5,
+                  .box_style = TAU_BOX_LIGHT,
+                  .style = fg_light_style};
+  tau_box box2 = {.x = 10,
+                  .y = 2,
+                  .width = 10,
+                  .height = 5,
+                  .box_style = TAU_BOX_HEAVY,
+                  .style = fg_light_style};
+
+  tau_box box_list[2] = {box1, box2};
+
+  tau_put_box_grid(ctx, box_list, 2);
+
   tau_draw_diff(ctx);
   sleep(5);
 
