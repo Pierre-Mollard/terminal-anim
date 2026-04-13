@@ -374,10 +374,14 @@ void tau_put_box_grid(tau_ctx *ctx, tau_box *boxes, size_t amount) {
   int effective_height = max_y - min_y;
   size_t total_size = effective_width * effective_height;
 
-  tau_box_style *grid = calloc(total_size, sizeof(*grid));
+  struct box_content {
+    tau_box_style box_style;
+    tau_style style;
+  };
+  struct box_content *grid = calloc(total_size, sizeof(*grid));
 
   for (int i = 0; i < total_size; i++) {
-    grid[i] = TAU_BOX_NONE;
+    grid[i].box_style = TAU_BOX_NONE;
   }
 
   for (int i = 0; i < amount; i++) {
@@ -389,35 +393,47 @@ void tau_put_box_grid(tau_ctx *ctx, tau_box *boxes, size_t amount) {
     int y2 = current_box.y + current_box.height - 1 - min_y;
 
     for (int x = x1; x <= x2; x++) {
-      grid[grid_index(x, y1, effective_width)] = current_box.box_style;
-      grid[grid_index(x, y2, effective_width)] = current_box.box_style;
+      grid[grid_index(x, y1, effective_width)].box_style =
+          current_box.box_style;
+      grid[grid_index(x, y2, effective_width)].box_style =
+          current_box.box_style;
+      grid[grid_index(x, y1, effective_width)].style = current_box.style;
+      grid[grid_index(x, y2, effective_width)].style = current_box.style;
     }
     for (int y = y1; y <= y2; y++) {
-      grid[grid_index(x1, y, effective_width)] = current_box.box_style;
-      grid[grid_index(x2, y, effective_width)] = current_box.box_style;
+      grid[grid_index(x1, y, effective_width)].box_style =
+          current_box.box_style;
+      grid[grid_index(x2, y, effective_width)].box_style =
+          current_box.box_style;
+      grid[grid_index(x1, y, effective_width)].style = current_box.style;
+      grid[grid_index(x2, y, effective_width)].style = current_box.style;
     }
   }
 
   for (int y = 0; y < effective_height; y++) {
     for (int x = 0; x < effective_width; x++) {
-      tau_box_style center = grid[grid_index(x, y, effective_width)];
-      if (center == TAU_BOX_NONE)
+      struct box_content center = grid[grid_index(x, y, effective_width)];
+      if (center.box_style == TAU_BOX_NONE)
         continue;
 
       tau_box_style left =
-          (x > 0) ? grid[grid_index(x - 1, y, effective_width)] : TAU_BOX_NONE;
-      tau_box_style right = (x + 1 < effective_width)
-                                ? grid[grid_index(x + 1, y, effective_width)]
-                                : TAU_BOX_NONE;
+          (x > 0) ? grid[grid_index(x - 1, y, effective_width)].box_style
+                  : TAU_BOX_NONE;
+      tau_box_style right =
+          (x + 1 < effective_width)
+              ? grid[grid_index(x + 1, y, effective_width)].box_style
+              : TAU_BOX_NONE;
       tau_box_style top =
-          (y > 0) ? grid[grid_index(x, y - 1, effective_width)] : TAU_BOX_NONE;
-      tau_box_style bottom = (y + 1 < effective_height)
-                                 ? grid[grid_index(x, y + 1, effective_width)]
-                                 : TAU_BOX_NONE;
+          (y > 0) ? grid[grid_index(x, y - 1, effective_width)].box_style
+                  : TAU_BOX_NONE;
+      tau_box_style bottom =
+          (y + 1 < effective_height)
+              ? grid[grid_index(x, y + 1, effective_width)].box_style
+              : TAU_BOX_NONE;
 
       uint32_t ch = resolve_border_style_from_grid(top, bottom, left, right);
       if (ch != ' ')
-        tau_put_char(ctx, ch, x + min_x, y + min_y, boxes[0].style);
+        tau_put_char(ctx, ch, x + min_x, y + min_y, center.style);
     }
   }
 
