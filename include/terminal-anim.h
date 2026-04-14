@@ -76,6 +76,21 @@ typedef struct {
   } data;
 } tau_event;
 
+typedef struct tau_box_shadow {
+  tau_style style;
+  int offset_x;
+  int offset_y;
+  bool is_border_mode;
+  union {
+    struct {
+      uint32_t symbol;
+    } uniform;
+    struct {
+      tau_box_style style;
+    } border;
+  } content;
+} tau_box_shadow;
+
 typedef struct tau_box {
   int x;
   int y;
@@ -83,6 +98,8 @@ typedef struct tau_box {
   unsigned int height;
   tau_box_style box_style;
   tau_style style;
+  bool has_shadow;
+  tau_box_shadow shadow;
 } tau_box;
 
 #define TAU_STYLE_INVALID ((tau_style){.is_valid = false})

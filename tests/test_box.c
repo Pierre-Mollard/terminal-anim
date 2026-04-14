@@ -8,6 +8,8 @@
 #include <unistd.h>
 
 tau_ctx *ctx;
+tau_style shadow1 = {0};
+tau_style shadow2 = {0};
 tau_style bg_style = {0};
 tau_style fg_red = {0};
 tau_style fg_style = {0};
@@ -22,6 +24,15 @@ int main(int argc, char *argv[]) {
     printf("Test ERROR! - ctx is NULL\n");
     return 1;
   }
+  shadow1.fg.b = 200;
+  shadow1.fg.g = 200;
+  shadow1.fg.r = 200;
+  shadow1.has_bg = true;
+
+  shadow2.fg.b = 100;
+  shadow2.fg.g = 100;
+  shadow2.fg.r = 100;
+  shadow2.has_bg = true;
 
   bg_style.fg.b = 255;
   bg_style.fg.g = 255;
@@ -63,12 +74,30 @@ int main(int argc, char *argv[]) {
                   .width = 10,
                   .height = 5,
                   .box_style = TAU_BOX_LIGHT,
+                  .has_shadow = true,
+                  .shadow =
+                      {
+                          .offset_x = 1,
+                          .offset_y = 1,
+                          .is_border_mode = false,
+                          .content = {.uniform = {.symbol = '#'}},
+                          .style = shadow1,
+                      },
                   .style = fg_red};
   tau_box box2 = {.x = 9,
                   .y = 2,
                   .width = 10,
                   .height = 5,
                   .box_style = TAU_BOX_HEAVY,
+                  .has_shadow = true,
+                  .shadow =
+                      {
+                          .offset_x = 1,
+                          .offset_y = 1,
+                          .is_border_mode = false,
+                          .content = {.uniform = {.symbol = 'X'}},
+                          .style = shadow2,
+                      },
                   .style = fg_light_style};
   tau_box box3 = {.x = 20,
                   .y = 0,

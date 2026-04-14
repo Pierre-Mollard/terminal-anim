@@ -245,6 +245,36 @@ static uint32_t resolve_border_style_from_grid(tau_box_style top,
   return ' ';
 }
 
+// TODO: add width of shadow with bigger offset
+// TODO: dont draw withing the box (if a attr is true)
+static void draw_box_shadow(tau_ctx *ctx, tau_box box) {
+  tau_box_shadow shadow = box.shadow;
+  if (shadow.is_border_mode) {
+    tau_put_box(ctx, shadow.offset_x, shadow.offset_y, box.width, box.height,
+                shadow.content.border.style, shadow.style);
+  } else {
+
+    int x = box.x + shadow.offset_x;
+    int y = box.y + shadow.offset_y;
+    int width = box.width - 1;
+    int height = box.height - 1;
+    uint32_t uniform_char = shadow.content.uniform.symbol;
+
+    tau_put_hline(ctx, y, x + 1, x + width - 1, uniform_char, shadow.style);
+
+    tau_put_hline(ctx, y + height, x + 1, x + width - 1, uniform_char,
+                  shadow.style);
+    tau_put_vline(ctx, x, y + 1, y + height - 1, uniform_char, shadow.style);
+    tau_put_vline(ctx, x + width, y + 1, y + height - 1, uniform_char,
+                  shadow.style);
+
+    tau_put_char(ctx, uniform_char, x, y, shadow.style);
+    tau_put_char(ctx, uniform_char, x + width, y, shadow.style);
+    tau_put_char(ctx, uniform_char, x, y + height, shadow.style);
+    tau_put_char(ctx, uniform_char, x + width, y + height, shadow.style);
+  }
+}
+
 void tau_put_box(tau_ctx *ctx, int x, int y, unsigned int width,
                  unsigned int height, tau_box_style box_style,
                  tau_style style) {
@@ -355,6 +385,14 @@ static inline size_t grid_index(int x, int y, int w) {
 }
 
 void tau_put_box_grid(tau_ctx *ctx, tau_box *boxes, size_t amount) {
+
+  // draw shadows before
+  for (int i = 0; i < amount; i++) {
+    tau_box current_box = boxes[i];
+    if (current_box.has_shadow) {
+      draw_box_shadow(ctx, current_box);
+    }
+  }
 
   // building fast representation of box borders
   int min_x = 0, min_y = 0;
