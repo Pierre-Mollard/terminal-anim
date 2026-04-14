@@ -250,8 +250,9 @@ static uint32_t resolve_border_style_from_grid(tau_box_style top,
 static void draw_box_shadow(tau_ctx *ctx, tau_box box) {
   tau_box_shadow shadow = box.shadow;
   if (shadow.is_border_mode) {
-    tau_put_box(ctx, shadow.offset_x, shadow.offset_y, box.width, box.height,
-                shadow.content.border.style, shadow.style);
+    tau_put_box(ctx, shadow.offset_x + box.x, shadow.offset_y + box.y,
+                box.width - 1, box.height - 1, shadow.content.border.style,
+                shadow.style);
   } else {
 
     int x = box.x + shadow.offset_x;

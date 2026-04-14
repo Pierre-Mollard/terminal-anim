@@ -10,6 +10,7 @@
 tau_ctx *ctx;
 tau_style shadow1 = {0};
 tau_style shadow2 = {0};
+tau_style shadow3 = {0};
 tau_style bg_style = {0};
 tau_style fg_red = {0};
 tau_style fg_style = {0};
@@ -24,15 +25,20 @@ int main(int argc, char *argv[]) {
     printf("Test ERROR! - ctx is NULL\n");
     return 1;
   }
-  shadow1.fg.b = 200;
-  shadow1.fg.g = 200;
-  shadow1.fg.r = 200;
+  shadow1.bg.b = 200;
+  shadow1.bg.g = 200;
+  shadow1.bg.r = 200;
   shadow1.has_bg = true;
 
-  shadow2.fg.b = 100;
-  shadow2.fg.g = 100;
-  shadow2.fg.r = 100;
+  shadow2.bg.b = 100;
+  shadow2.bg.g = 100;
+  shadow2.bg.r = 100;
   shadow2.has_bg = true;
+
+  shadow3.bg.b = 100;
+  shadow3.bg.g = 100;
+  shadow3.bg.r = 100;
+  shadow3.has_bg = true;
 
   bg_style.fg.b = 255;
   bg_style.fg.g = 255;
@@ -108,6 +114,24 @@ int main(int argc, char *argv[]) {
 
   tau_box box_list[3] = {box1, box2, box3};
 
+  tau_box box0 = {.x = 105,
+                  .y = 23,
+                  .width = 20,
+                  .height = 10,
+                  .box_style = TAU_BOX_DOUBLE,
+                  .has_shadow = true,
+                  .shadow =
+                      {
+                          .offset_x = 1,
+                          .offset_y = 1,
+                          .is_border_mode = true,
+                          .content.border.style = TAU_BOX_LIGHT,
+                          .style = shadow3,
+                      },
+                  .style = fg_style};
+
+  tau_box box2_list[1] = {box0};
+
   tau_toggle_input_evt(ctx, true);
 
   int counter = 0;
@@ -143,6 +167,8 @@ int main(int argc, char *argv[]) {
 
     tau_put_str(ctx, text, strlen(text), 2, 1, text_style);
     tau_put_box_grid(ctx, box_list, 3);
+
+    tau_put_box_grid(ctx, box2_list, 1);
 
     snprintf(text_buffer, sizeof(text_buffer), "[%d] any event counter : %d",
              counter, evt_counter);
